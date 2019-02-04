@@ -1,0 +1,121 @@
+{
+  "root": true,
+  "extends": [
+    "eslint:recommended",
+    "google",
+    "plugin:node/recommended",
+    "airbnb-base"
+  ],
+  "plugins": [
+    "node",
+    "mocha"
+  ],
+  "parserOptions": {
+    "ecmaVersion": 2017,
+    "ecmaFeatures": {
+      "impliedStrict": true,
+      "experimentalObjectRestSpread": true
+    }
+  },
+  "env": {
+    "es6": true,
+    "node": true,
+    "mocha": true
+  },
+  "rules": {
+    "no-var": [
+      "error"
+    ],
+    "new-cap": [
+      "off"
+    ],
+    "no-console": [
+      "off"
+    ],
+    "require-jsdoc": [
+      "off"
+    ],
+    "indent": [
+      "error",
+      2,
+      {
+        "SwitchCase": 1
+      }
+    ],
+    "prefer-spread": [
+      "off"
+    ],
+    "no-invalid-this": [
+      "off"
+    ],
+    "curly": [
+      "error"
+    ],
+    "no-multi-str": [
+      "off"
+    ],
+    "keyword-spacing": [
+      "off"
+    ],
+    "node/no-unpublished-require": [
+      "off"
+    ],
+    "node/no-unsupported-features": [
+      "off"
+    ],
+    "semi": [
+      "error"
+    ],
+    "arrow-parens": 0,
+    "no-process-exit": [
+      "off"
+    ],
+    "no-throw-literal": [
+      "off"
+    ],
+    "no-constant-condition": [
+      "off"
+    ],
+    "max-len": [
+      "warn",
+      {
+        "code": 80,
+        "tabWidth": 2,
+        "ignorePattern": "^\\s*const\\s.+=\\s*require\\s*\\(",
+        "ignoreComments": true,
+        "ignoreUrls": true
+      }
+    ],
+    "mocha/no-skipped-tests": "warn",
+    "mocha/no-exclusive-tests": "error",
+    "prefer-const": [
+      "error",
+      {
+        "destructuring": "any"
+      }
+    ],
+    "no-restricted-syntax": "warn",
+    "no-await-in-loop": "warn",
+    "no-param-reassign": "warn",
+    "class-methods-use-this": "off",
+    "no-plusplus": [
+      "warn",
+      {"allowForLoopAfterthoughts": true}
+    ],
+    "no-new": "warn",
+    "global-require": "off",
+    "prefer-arrow-callback": "warn",
+    "func-names": "off"
+  },
+  "globals": {
+    "web3": true,
+    "assert": true,
+    "contract": true,
+    "artifacts": true
+  },
+  "settings": {
+    "mocha/additionalTestFunctions": [
+      "describeModule"
+    ]
+  }
+}
