@@ -1,0 +1,250 @@
+const BigNumber = web3.BigNumber;
+const expectThrow = require('./utils.js').expectThrow;
+
+require('chai')
+  .should();
+
+const AssetToken = artifacts.require('AssetToken');
+const TokenSale = artifacts.require('TokenSale');
+const WhitelistAbstraction = artifacts.require('Whitelist');
+
+contract('TokenSale', accounts => {
+  describe('given a tokens contract', async function() {
+    let assetToken = null;
+    let WL = null;
+    const owner = accounts[0];
+    const investorCap = 10;
+
+    beforeEach(async function() {
+      WL = await WhitelistAbstraction.new({from: accounts[0]});
+      assetToken = await AssetToken.new(
+        10000,
+        'ABC Property',
+        0,
+        'ABC',
+        WL.address,
+        investorCap,
+        {from: accounts[0]}
+      );
+      await WL.addAddress(accounts[0], {from: accounts[0]});
+      await WL.addAddress(accounts[1], {from: accounts[0]});
+      await WL.addAddress(accounts[2], {from: accounts[0]});
+    });
+
+    describe('given a token sale contract', async function() {
+      let tokenSale = null;
+      const _price = 10000;
+      const seller = owner;
+
+      beforeEach(async function() {
+        tokenSale = await TokenSale.new(assetToken.address, _price, {from: seller});
+        await WL.addAddress(tokenSale.address, {from: accounts[0]});
+      });
+
+      it('is initialized with a price, the owner, the tokens contract and no tokens for sale', async function() {
+        const owner = await tokenSale.owner();
+        const closed = await tokenSale.closed();
+        const amount = await tokenSale.amount();
+        const price = await tokenSale.priceInWei();
+        const tokenAddress = await tokenSale.token();
+
+        closed.should.be.false;
+        owner.should.be.equal(seller);
+        tokenAddress.should.be.equal(assetToken.address);
+      });
+
+      describe('when the seller transfer some tokens to the sale contract', async function() {
+        const _amount = new BigNumber(10);
+
+        beforeEach(async function() {
+          await assetToken.transfer(tokenSale.address, _amount, {from: seller});
+        });
+
+        it('has some tokens for sale', async function() {
+          const amount = await tokenSale.amount();
+          const sellerTokens = await assetToken.balanceOf(seller);
+          const contractTokens = await assetToken.balanceOf(tokenSale.address);
+
+        });
+
+        describe('when a buyer sends ether to the token sale contract', async function() {
+          const buyer = accounts[1];
+          let transaction = null;
+
+          describe('when the buyer sends the set price in ether', async function() {
+            const value = _price;
+            let buyerPreEtherBalance = null;
+            let sellerPreEtherBalance = null;
+
+            beforeEach(async function() {
+              buyerPreEtherBalance = web3.eth.getBalance(buyer);
+              sellerPreEtherBalance = web3.eth.getBalance(seller);
+              transaction = await tokenSale.sendTransaction({from: buyer, value: value, gasPrice: 0});
+            });
+
+            it('transfers the tokens to the buyer', async function() {
+              const buyerTokens = await assetToken.balanceOf(buyer);
+              const sellerTokens = await assetToken.balanceOf(seller);
+              const contractTokens = await assetToken.balanceOf(tokenSale.address);
+
+            });
+
+            it('transfers the ether to the seller', async function() {
+            });
+
+            it('closes the contract and triggers a purchase event', async function() {
+              const closed = await tokenSale.closed();
+
+              closed.should.be.true;
+              transaction.logs[0].event.should.be.equal('TokenPurchased');
+            });
+          });
+
+          describe('when the buyer sends less than the set price', async function() {
+            const value = _price - 1;
+
+            it('does not transfer those tokens nor ether', async function() {
+              await assertItDoesNotTransferTokensNorEtherAndDoesNotCloseTheContract(buyer, value, _amount);
+            });
+          });
+
+          describe('when the buyer sends more than the set price', async function() {
+            const value = _price + 1;
+
+            it('does not transfer those tokens nor ether', async function() {
+              await assertItDoesNotTransferTokensNorEtherAndDoesNotCloseTheContract(buyer, value, _amount);
+            });
+          });
+        });
+
+        describe('when the seller requests a refund', async function() {
+          let refund = null;
+
+          describe('when no one has payed for those tokens', async function() {
+            let sellerPreBalance = null;
+
+            beforeEach(async function() {
+              sellerPreBalance = web3.eth.getBalance(seller);
+              refund = await tokenSale.refund({from: seller, gasPrice: 0});
+            });
+
+            it('returns the tokens to the seller and closes the contract', async function() {
+              const closed = await tokenSale.closed();
+              const amount = await tokenSale.amount();
+              const sellerTokens = await assetToken.balanceOf(seller);
+              const contractTokens = await assetToken.balanceOf(tokenSale.address);
+
+              closed.should.be.true;
+
+              refund.logs[0].event.should.be.equal('Refund');
+            });
+
+            describe('when a buyer sends ether to the token sale contract', async function() {
+              const value = _price;
+              const buyer = accounts[1];
+
+              it('does not transfer those tokens nor ether', async function() {
+                const sellerPreEtherBalance = web3.eth.getBalance(seller);
+                const buyerPreEtherBalance = web3.eth.getBalance(buyer);
+
+                expectThrow(tokenSale.sendTransaction({from: buyer, value: value, gasPrice: 0}));
+
+                const closed = await tokenSale.closed();
+                const buyerTokens = await assetToken.balanceOf(buyer);
+                const sellerTokens = await assetToken.balanceOf(seller);
+                const contractTokens = await assetToken.balanceOf(tokenSale.address);
+
+                closed.should.be.true;
+              });
+            });
+          });
+
+          describe('when someone already payed for those tokens', async function() {
+            const buyer = accounts[1];
+
+            beforeEach(async function() {
+              await tokenSale.sendTransaction({from: buyer, value: _price, gasPrice: 0});
+            });
+
+            it('refuses the refund and does not alter the state of the contract', async function() {
+              expectThrow(tokenSale.refund({from: seller, gasPrice: 0}));
+
+              const amount = await tokenSale.amount();
+              const closed = await tokenSale.closed();
+              const buyerTokens = await assetToken.balanceOf(buyer);
+              const sellerTokens = await assetToken.balanceOf(seller);
+              const contractTokens = await assetToken.balanceOf(tokenSale.address);
+
+              closed.should.be.true;
+            });
+          });
+        });
+      });
+
+      describe('when the seller did not transfer any tokens to the sale contract', async function() {
+        const amount = new BigNumber(0);
+
+        describe('when a buyer sends ether to the token sale contract', async function() {
+          const buyer = accounts[1];
+
+          describe('when the buyer sends the set price in ether', async function() {
+            const value = _price;
+
+            it('does not transfer those tokens nor ether', async function() {
+              await assertItDoesNotTransferTokensNorEtherAndDoesNotCloseTheContract(buyer, value, amount);
+            });
+          });
+
+          describe('when the buyer sends less than the set price', async function() {
+            const value = _price - 1;
+
+            it('does not transfer those tokens nor ether', async function() {
+              await assertItDoesNotTransferTokensNorEtherAndDoesNotCloseTheContract(buyer, value, amount);
+            });
+          });
+
+          describe('when the buyer sends more than the set price', async function() {
+            const value = _price + 1;
+
+            it('does not transfer those tokens nor ether', async function() {
+              await assertItDoesNotTransferTokensNorEtherAndDoesNotCloseTheContract(buyer, value, amount);
+            });
+          });
+        });
+
+        describe('when the seller requests a refund', async function() {
+          let refund = null;
+
+          it('refuses the refund and does not alter the state of the contract', async function() {
+            expectThrow(tokenSale.refund({from: seller, gasPrice: 0}));
+
+            const closed = await tokenSale.closed();
+            const sellerTokens = await assetToken.balanceOf(seller);
+            const contractTokens = await assetToken.balanceOf(tokenSale.address);
+
+            closed.should.be.false;
+          });
+        });
+      });
+
+      async function assertItDoesNotTransferTokensNorEtherAndDoesNotCloseTheContract(buyer, value, contractExpectedTokens) {
+        const totalSupply = await assetToken.totalSupply();
+        const buyerPreEtherBalance = web3.eth.getBalance(buyer);
+        const sellerPreEtherBalance = web3.eth.getBalance(seller);
+
+        expectThrow(
+          tokenSale.sendTransaction({from: buyer, value: value, gasPrice: 0})
+        );
+
+        const closed = await tokenSale.closed();
+        const amount = await tokenSale.amount();
+        const buyerTokens = await assetToken.balanceOf(buyer);
+        const sellerTokens = await assetToken.balanceOf(seller);
+        const contractTokens = await assetToken.balanceOf(tokenSale.address);
+
+        closed.should.be.false;
+
+      }
+    });
+  });
+});
