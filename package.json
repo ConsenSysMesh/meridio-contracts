@@ -9,7 +9,7 @@
     "coverage": "./node_modules/.bin/solidity-coverage",
     "test": "NODE_ENV=test truffle test",
     "hint": "solhint 'contracts/**/*.sol'",
-    "myth": "rm -rf ./build/contracts && truffle compile && myth --truffle",
+    "myth": "rm -rf ./build/contracts && truffle compile && myth --truffle"
   },
   "repository": {
     "type": "git",
@@ -20,12 +20,13 @@
   "homepage": "https://github.com/MeridioRE/meridio-contracts#readme",
   "devDependencies": {
     "eslint": "~4.18.2",
-    "eslint-config-google": "~0.9.1",
     "eslint-config-airbnb-base": "~13.1.0",
+    "eslint-config-google": "~0.9.1",
+    "eslint-plugin-import": "~2.14.0",
     "eslint-plugin-mocha": "~5.0.0",
     "eslint-plugin-node": "~6.0.1",
-    "eslint-plugin-import": "~2.14.0",
     "eth-gas-reporter": "~0.1.9",
+    "ethereumjs-abi": "~0.6.5",
     "husky": "~1.3.1",
     "lint-staged": "~8.1.0",
     "mocha": "~5.2.0",
@@ -34,6 +35,8 @@
     "truffle-hdwallet-provider": "~1.0.0-web3one.2"
   },
   "dependencies": {
+    "commander": "~2.19.0",
+    "dotenv": "~4.0.0",
     "openzeppelin-solidity": "~1.12.0",
     "truffle": "~4.1.15",
     "truffle-contract": "~3.0.7",
