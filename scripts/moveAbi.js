@@ -12,10 +12,14 @@ program
   .parse(process.argv);
 
 (async function start() {
-  const parentDir = path.dirname(process.mainModule.filename);
+  const parentDir = path.dirname(
+    path.dirname(
+      process.mainModule.filename,
+    ),
+  );
   const buildFile = await readFile(
     path.join(
-      path.dirname(parentDir),
+      parentDir,
       'build',
       'contracts',
       `${program.file}.json`,
@@ -29,6 +33,7 @@ program
   delete contractJson.legacyAST;
   const destination = path.join(
     path.dirname(parentDir),
+    'meridio-api',
     'api',
     'v2',
     'abis',
