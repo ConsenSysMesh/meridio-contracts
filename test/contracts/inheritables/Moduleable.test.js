@@ -1,11 +1,12 @@
 /* eslint max-len:0 */
 const expectThrow = require('../../utils.js').expectThrow;
+
 const ModuleableAbstraction = artifacts.require('Moduleable');
 const PausableValidatorAbstraction = artifacts.require('PausableValidator');
 const SimpleTokenAbstraction = artifacts.require('SimpleToken');
 const OverflowModuleAbstraction = artifacts.require('OverflowModuleMock');
 
-contract('Moduleable', function(accounts) {
+contract('Moduleable', (accounts) => {
   const owner = accounts[0];
   const nonOwner = accounts[1];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
@@ -13,27 +14,27 @@ contract('Moduleable', function(accounts) {
   let M;
   let PV;
 
-  beforeEach( async () => {
-    M = await ModuleableAbstraction.new({from: owner});
+  beforeEach(async () => {
+    M = await ModuleableAbstraction.new({ from: owner });
     PV = await PausableValidatorAbstraction.new(
-      {from: owner}
+      { from: owner },
     );
   });
 
   describe('.addModule()', () => {
-    it('it should add a module for the owner', async function() {
+    it('it should add a module for the owner', async () => {
       const result = await M.addModule(
         PV.address,
-        {from: owner}
+        { from: owner },
       );
 
       assert.strictEqual(
         result.logs[0].event,
-        'LogModuleAdded'
+        'LogModuleAdded',
       );
       assert.strictEqual(
         result.logs[0].args.moduleAddress,
-        PV.address
+        PV.address,
       );
 
       assert.strictEqual(
@@ -50,227 +51,227 @@ contract('Moduleable', function(accounts) {
       );
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         PV.address,
-        searchResult
+        searchResult,
       );
     });
-    it('it should reject a module for a non-owner', async function() {
+    it('it should reject a module for a non-owner', async () => {
       await expectThrow(M.addModule(
         PV.address,
-        {from: nonOwner}
+        { from: nonOwner },
       ));
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         ZERO_ADDRESS,
-        searchResult
+        searchResult,
       );
     });
-    it('it should reject a module address of ZERO_ADDRESS', async function() {
+    it('it should reject a module address of ZERO_ADDRESS', async () => {
       await expectThrow(M.addModule(
         ZERO_ADDRESS,
-        {from: owner}
+        { from: owner },
       ));
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         ZERO_ADDRESS,
-        searchResult
+        searchResult,
       );
     });
-    it('it should reject a module address of moduleable contract', async function() {
+    it('it should reject a module address of moduleable contract', async () => {
       await expectThrow(M.addModule(
         M.address,
-        {from: owner}
+        { from: owner },
       ));
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         ZERO_ADDRESS,
-        searchResult
+        searchResult,
       );
     });
-    it('it should reject a module address of non-module contract', async function() {
-      const ST = await SimpleTokenAbstraction.new({from: owner});
+    it('it should reject a module address of non-module contract', async () => {
+      const ST = await SimpleTokenAbstraction.new({ from: owner });
       await expectThrow(M.addModule(
         ST.address,
-        {from: owner}
+        { from: owner },
       ));
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         ZERO_ADDRESS,
-        searchResult
+        searchResult,
       );
     });
-    it('it saves overflowed ModuleType without overwriting existing modules', async function() {
+    it('it saves overflowed ModuleType without overwriting existing modules', async () => {
       /**
        * if an attacker is able to add a module that does not enforce it's
        * moduleType as unit8 it could overwrite existing modules
        * uint 257 => uint8 1
        */
-      const AM = await OverflowModuleAbstraction.new({from: owner});
+      const AM = await OverflowModuleAbstraction.new({ from: owner });
 
       await M.addModule(
         PV.address,
-        {from: owner}
+        { from: owner },
       );
 
       await M.addModule(
         AM.address,
-        {from: owner}
+        { from: owner },
       );
 
       const validResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         PV.address,
-        validResult
+        validResult,
       );
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 1
+        TRANSFER_VALIDATOR_TYPE, 1,
       );
 
       assert.strictEqual(
         AM.address,
-        searchResult
+        searchResult,
       );
     });
   });
 
   describe('.removeModule()', () => {
-    beforeEach( async () => {
+    beforeEach(async () => {
       await M.addModule(
         PV.address,
-        {from: owner}
+        { from: owner },
       );
     });
-    it('it should remove a module for the owner', async function() {
+    it('it should remove a module for the owner', async () => {
       let searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         PV.address,
-        searchResult
+        searchResult,
       );
 
       const result = await M.removeModule(
         TRANSFER_VALIDATOR_TYPE,
         0,
-        {from: owner}
+        { from: owner },
       );
 
       assert.strictEqual(
         result.logs[0].event,
-        'LogModuleRemoved'
+        'LogModuleRemoved',
       );
 
       assert.strictEqual(
         web3._extend.utils.toDecimal(result.logs[0].args.moduleType),
-        TRANSFER_VALIDATOR_TYPE
+        TRANSFER_VALIDATOR_TYPE,
       );
 
       assert.strictEqual(
         result.logs[0].args.moduleAddress,
-        PV.address
+        PV.address,
       );
 
       searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         searchResult,
-        ZERO_ADDRESS
+        ZERO_ADDRESS,
       );
     });
-    it('it should reject removing a module for a non-owner', async function() {
+    it('it should reject removing a module for a non-owner', async () => {
       const confirmAdded = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         PV.address,
-        confirmAdded
+        confirmAdded,
       );
 
       await expectThrow(
         M.removeModule(
           TRANSFER_VALIDATOR_TYPE,
           0,
-          {from: nonOwner}
-        )
+          { from: nonOwner },
+        ),
       );
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         PV.address,
-        searchResult
+        searchResult,
       );
     });
-    it('it should reject removing module when given wrong index', async function() {
+    it('it should reject removing module when given wrong index', async () => {
       const confirmAdded = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         PV.address,
-        confirmAdded
+        confirmAdded,
       );
 
       await expectThrow(
         M.removeModule(
           TRANSFER_VALIDATOR_TYPE,
           1,
-          {from: owner}
-        )
+          { from: owner },
+        ),
       );
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         PV.address,
-        searchResult
+        searchResult,
       );
     });
     it('it should protect against uint8 underflow in moduleIndex', async () => {
       await M.removeModule(
         TRANSFER_VALIDATOR_TYPE,
         0,
-        {from: owner}
+        { from: owner },
       );
       const confirmRemoved = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         ZERO_ADDRESS,
-        confirmRemoved
+        confirmRemoved,
       );
 
       // if we remove again, and it should stop before altering the array length
@@ -278,22 +279,22 @@ contract('Moduleable', function(accounts) {
         M.removeModule(
           TRANSFER_VALIDATOR_TYPE,
           0,
-          {from: owner}
-        )
+          { from: owner },
+        ),
       );
 
       const searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         ZERO_ADDRESS,
-        searchResult
+        searchResult,
       );
     });
     it('it will remove the first module if given overflowed uint8', async () => {
       let searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
@@ -304,26 +305,26 @@ contract('Moduleable', function(accounts) {
       const result = await M.removeModule(
         TRANSFER_VALIDATOR_TYPE,
         256,
-        {from: owner}
+        { from: owner },
       );
 
       assert.strictEqual(
         result.logs[0].event,
-        'LogModuleRemoved'
+        'LogModuleRemoved',
       );
 
       assert.strictEqual(
         web3._extend.utils.toDecimal(result.logs[0].args.moduleType),
-        TRANSFER_VALIDATOR_TYPE
+        TRANSFER_VALIDATOR_TYPE,
       );
 
       assert.strictEqual(
         result.logs[0].args.moduleAddress,
-        PV.address
+        PV.address,
       );
 
       searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
@@ -333,7 +334,7 @@ contract('Moduleable', function(accounts) {
     });
     it('it will remove modules from first Type with overflowed uint8 moduleType', async () => {
       let searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
@@ -344,26 +345,26 @@ contract('Moduleable', function(accounts) {
       const result = await M.removeModule(
         257, // == uint8 1
         0,
-        {from: owner}
+        { from: owner },
       );
 
       assert.strictEqual(
         result.logs[0].event,
-        'LogModuleRemoved'
+        'LogModuleRemoved',
       );
 
       assert.strictEqual(
         web3._extend.utils.toDecimal(result.logs[0].args.moduleType),
-        TRANSFER_VALIDATOR_TYPE
+        TRANSFER_VALIDATOR_TYPE,
       );
 
       assert.strictEqual(
         result.logs[0].args.moduleAddress,
-        PV.address
+        PV.address,
       );
 
       searchResult = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
@@ -371,29 +372,29 @@ contract('Moduleable', function(accounts) {
         ZERO_ADDRESS,
       );
     });
-    describe('multiple modules added and removed correctly', async function() {
+    describe('multiple modules added and removed correctly', async () => {
       let PV2;
       let PV3;
 
-      beforeEach( async () => {
+      beforeEach(async () => {
         PV2 = await PausableValidatorAbstraction.new(
-          {from: owner}
+          { from: owner },
         );
         await M.addModule(
           PV2.address,
-          {from: owner}
+          { from: owner },
         );
 
         PV3 = await PausableValidatorAbstraction.new(
-          {from: owner}
+          { from: owner },
         );
         await M.addModule(
           PV3.address,
-          {from: owner}
+          { from: owner },
         );
       });
 
-      it('maintains structure correctly on removal', async function() {
+      it('maintains structure correctly on removal', async () => {
         const MODULE_TYPE = 1;
         // 3 modules have been added
 
@@ -402,35 +403,35 @@ contract('Moduleable', function(accounts) {
 
         // There should be modules at indices [0,1] and 0x at [2]
         const index0 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 0
+          TRANSFER_VALIDATOR_TYPE, 0,
         );
         const index1 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 1
+          TRANSFER_VALIDATOR_TYPE, 1,
         );
         const index2 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 2
+          TRANSFER_VALIDATOR_TYPE, 2,
         );
 
         // First 2 indices include the modules that weren't removed
         assert.include(
           [PV.address, PV3.address],
-          index0
+          index0,
         );
         assert.include(
           [PV.address, PV3.address],
-          index1
+          index1,
         );
 
         // The removed module (PV2) is not present
         assert.notInclude(
           [index0, index1, index2],
-          PV2.address
+          PV2.address,
         );
 
         // Index2 is out of range so returns 0x
         assert.strictEqual(
           ZERO_ADDRESS,
-          index2
+          index2,
         );
 
         // it should emit an event for the changed module Index
@@ -448,7 +449,7 @@ contract('Moduleable', function(accounts) {
         );
       });
 
-      it('Emits LogModuleIndexUpdate when first module removed', async function() {
+      it('Emits LogModuleIndexUpdate when first module removed', async () => {
         const MODULE_TYPE = 1;
         // 3 modules have been added
 
@@ -470,7 +471,7 @@ contract('Moduleable', function(accounts) {
         );
       });
 
-      it('Emits LogModuleIndexUpdate when middle module removed', async function() {
+      it('Emits LogModuleIndexUpdate when middle module removed', async () => {
         const MODULE_TYPE = 1;
         // 3 modules have been added
 
@@ -492,7 +493,7 @@ contract('Moduleable', function(accounts) {
         );
       });
 
-      it('Does not emit LogModuleIndexUpdate when last module removed', async function() {
+      it('Does not emit LogModuleIndexUpdate when last module removed', async () => {
         const MODULE_TYPE = 1;
         // 3 modules have been added
 
@@ -507,11 +508,11 @@ contract('Moduleable', function(accounts) {
         assert.notEqual(
           result.logs[0].event,
           'LogModuleIndexUpdate',
-          'First event should not be the IndexUpdate'
+          'First event should not be the IndexUpdate',
         );
       });
 
-      it('Successfully removes last Module after it has been shifted', async function() {
+      it('Successfully removes last Module after it has been shifted', async () => {
         const MODULE_TYPE = 1;
         // 3 modules have been added
 
@@ -520,35 +521,35 @@ contract('Moduleable', function(accounts) {
 
         // There should be modules at indices [0,1] and 0x at [2]
         const index0 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 0
+          TRANSFER_VALIDATOR_TYPE, 0,
         );
         const index1 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 1
+          TRANSFER_VALIDATOR_TYPE, 1,
         );
         const index2 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 2
+          TRANSFER_VALIDATOR_TYPE, 2,
         );
 
         // First 2 indices include the modules that weren't removed
         assert.include(
           [PV.address, PV3.address],
-          index0
+          index0,
         );
         assert.include(
           [PV.address, PV3.address],
-          index1
+          index1,
         );
 
         // The removed module (PV2) is not present
         assert.notInclude(
           [index0, index1, index2],
-          PV2.address
+          PV2.address,
         );
 
         // Index2 is out of range so returns 0x
         assert.strictEqual(
           ZERO_ADDRESS,
-          index2
+          index2,
         );
 
         // it should emit an event for the changed module Index
@@ -569,16 +570,16 @@ contract('Moduleable', function(accounts) {
         await M.removeModule(MODULE_TYPE, 1);
 
         const nowIndex1 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 1
+          TRANSFER_VALIDATOR_TYPE, 1,
         );
 
         assert.strictEqual(
           ZERO_ADDRESS,
-          nowIndex1
+          nowIndex1,
         );
       });
 
-      it('handles all modules removed correctly', async function() {
+      it('handles all modules removed correctly', async () => {
         const MODULE_TYPE = 1;
         // 3 modules have been added
 
@@ -589,30 +590,30 @@ contract('Moduleable', function(accounts) {
 
         // All indices should return 0x
         const index0 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 0
+          TRANSFER_VALIDATOR_TYPE, 0,
         );
         const index1 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 1
+          TRANSFER_VALIDATOR_TYPE, 1,
         );
         const index2 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 2
+          TRANSFER_VALIDATOR_TYPE, 2,
         );
 
         assert.strictEqual(
           ZERO_ADDRESS,
-          index0
+          index0,
         );
         assert.strictEqual(
           ZERO_ADDRESS,
-          index1
+          index1,
         );
         assert.strictEqual(
           ZERO_ADDRESS,
-          index2
+          index2,
         );
       });
 
-      it('handles all modules removed and then modules added', async function() {
+      it('handles all modules removed and then modules added', async () => {
         const MODULE_TYPE = 1;
         // 3 modules have been added
 
@@ -624,31 +625,31 @@ contract('Moduleable', function(accounts) {
         // Add a new modules
         await M.addModule(
           PV.address,
-          {from: owner}
+          { from: owner },
         );
 
         // All indices but the first should return 0x
         const index0 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 0
+          TRANSFER_VALIDATOR_TYPE, 0,
         );
         const index1 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 1
+          TRANSFER_VALIDATOR_TYPE, 1,
         );
         const index2 = await M.getModuleByTypeAndIndex.call(
-          TRANSFER_VALIDATOR_TYPE, 2
+          TRANSFER_VALIDATOR_TYPE, 2,
         );
 
         assert.strictEqual(
           PV.address,
-          index0
+          index0,
         );
         assert.strictEqual(
           ZERO_ADDRESS,
-          index1
+          index1,
         );
         assert.strictEqual(
           ZERO_ADDRESS,
-          index2
+          index2,
         );
       });
     });
@@ -656,43 +657,43 @@ contract('Moduleable', function(accounts) {
 
 
   describe('.getModuleByTypeAndIndex', () => {
-    it('can getModuleByTypeAndIndex from the added modules', async function() {
+    it('can getModuleByTypeAndIndex from the added modules', async () => {
       const PV1 = await PausableValidatorAbstraction.new(
-        {from: owner}
+        { from: owner },
       );
       await M.addModule(PV1.address);
 
       const PV2 = await PausableValidatorAbstraction.new(
-        {from: owner}
+        { from: owner },
       );
       await M.addModule(PV2.address);
 
       const PV3 = await PausableValidatorAbstraction.new(
-        {from: owner}
+        { from: owner },
       );
       await M.addModule(PV3.address);
 
       const result1 = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
       const result2 = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 1
+        TRANSFER_VALIDATOR_TYPE, 1,
       );
       const result3 = await M.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 2
+        TRANSFER_VALIDATOR_TYPE, 2,
       );
 
       assert.strictEqual(
         PV1.address,
-        result1
+        result1,
       );
       assert.strictEqual(
         PV2.address,
-        result2
+        result2,
       );
       assert.strictEqual(
         PV3.address,
-        result3
+        result3,
       );
     });
   });

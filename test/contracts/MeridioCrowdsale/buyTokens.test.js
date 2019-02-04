@@ -2,11 +2,11 @@
 const MeridioCrowdsaleAbstraction = artifacts.require('MeridioCrowdsale');
 const AssetTokenAbstraction = artifacts.require('AssetToken');
 
-const {latestTime} = require('openzeppelin-solidity/test/helpers/latestTime');
-const {advanceBlock} = require('openzeppelin-solidity/test/helpers/advanceToBlock');
-const {duration} = require('openzeppelin-solidity/test/helpers/increaseTime');
+const { latestTime } = require('openzeppelin-solidity/test/helpers/latestTime');
+const { advanceBlock } = require('openzeppelin-solidity/test/helpers/advanceToBlock');
+const { duration } = require('openzeppelin-solidity/test/helpers/increaseTime');
 
-contract('MeridioCrowdSale - buyTokens', function(accounts) {
+contract('MeridioCrowdSale - buyTokens', function (accounts) {
   const owner = accounts[0];
   const purchaser = accounts[1];
 
@@ -19,16 +19,16 @@ contract('MeridioCrowdSale - buyTokens', function(accounts) {
   const decimalUnits = 18;
   const tokenSymbol = 'ABC';
 
-  before( async () => {
+  before(async () => {
     await advanceBlock();
-    this.token = await AssetTokenAbstraction.new({from: owner});
+    this.token = await AssetTokenAbstraction.new({ from: owner });
     await this.token.initialize(
       owner,
       initialSupply,
       tokenName,
       decimalUnits,
       tokenSymbol,
-      {from: owner}
+      { from: owner },
     );
 
     this.openingTime = (await latestTime());
@@ -39,10 +39,10 @@ contract('MeridioCrowdSale - buyTokens', function(accounts) {
       this.closingTime,
       rate,
       this.token.address,
-      {from: owner}
+      { from: owner },
     );
 
-    await this.token.approve(this.crowdsale.address, initialSupply, {from: owner});
+    await this.token.approve(this.crowdsale.address, initialSupply, { from: owner });
   });
 
   describe('buyTokens - via transferFrom', () => {
@@ -61,8 +61,8 @@ contract('MeridioCrowdSale - buyTokens', function(accounts) {
         purchaser,
         {
           from: purchaser,
-          value: value,
-        }
+          value,
+        },
       );
 
       const buyEvent = buyTokens.logs[buyTokens.logs.length - 1];

@@ -20,7 +20,7 @@ const SimpleLinkRegistry = artifacts.require('SimpleLinkRegistry');
 
 const VersionableAssetTokenMockAbstraction = artifacts.require('VersionableAssetTokenMock');
 
-contract('Full Integration Test', function(accounts) {
+contract('Full Integration Test', function (accounts) {
   const adminOwner = accounts[0];
   const tokenOwner = accounts[1];
   const to = accounts[2];
@@ -42,23 +42,23 @@ contract('Full Integration Test', function(accounts) {
   const initializeDataV1 = encodeCall(
     'initialize',
     ['string'],
-    [newVersion]
+    [newVersion],
   );
 
   before(async () => {
     // Launch Link Registry
-    this.linkRegistry = await SimpleLinkRegistry.new({from: adminOwner});
+    this.linkRegistry = await SimpleLinkRegistry.new({ from: adminOwner });
     // Launch Distribution Issuer
-    this.distributionIssuer = await DistributionIssuer.new({from: adminOwner});
+    this.distributionIssuer = await DistributionIssuer.new({ from: adminOwner });
     // Launch ERC-20 Token (Fake Dai)
-    this.simpleToken = await SimpleToken.new({from: taker});
+    this.simpleToken = await SimpleToken.new({ from: taker });
     simpleTokenTotalSupply = await this.simpleToken.totalSupply.call();
     // Launch Exchange Swap
-    this.exchange = await ExchangeAbstraction.new({from: adminOwner});
+    this.exchange = await ExchangeAbstraction.new({ from: adminOwner });
     // Launch ProxyTokenFactory
-    this.factory = await ProxyTokenFactoryAbstraction.new({from: adminOwner});
+    this.factory = await ProxyTokenFactoryAbstraction.new({ from: adminOwner });
     // Launch AssetToken Singleton for Implementations
-    this.tokenV0 = await AssetTokenAbstraction.new({from: adminOwner});
+    this.tokenV0 = await AssetTokenAbstraction.new({ from: adminOwner });
   });
 
   describe('Full Integration Test', () => {
@@ -70,7 +70,7 @@ contract('Full Integration Test', function(accounts) {
         tokenName,
         decimalUnits,
         tokenSymbol,
-        {from: tokenOwner},
+        { from: tokenOwner },
       );
 
       this.proxy = OwnedUpgradeabilityProxyAbstraction.at(receipt.logs[0].args.proxyTokenAddress);
@@ -101,40 +101,40 @@ contract('Full Integration Test', function(accounts) {
         this.proxiedToken.address,
         linkKey,
         linkValue,
-        {from: adminOwner}
+        { from: adminOwner },
       );
 
       // Other user can find out about Link Info
       const linkInfo = await this.linkRegistry.getLink(
         this.proxiedToken.address,
         linkKey,
-        {from: to}
+        { from: to },
       );
 
       assert.strictEqual(
         linkInfo,
-        linkValue
+        linkValue,
       );
     });
 
     it('it should add a pausableValidator', async () => {
       // TokenOwner Adds Pausable Validator
       this.pausableValidator = await PausableValidator.new(
-        {from: tokenOwner}
+        { from: tokenOwner },
       );
 
       await this.proxiedToken.addModule(
         this.pausableValidator.address,
-        {from: tokenOwner}
+        { from: tokenOwner },
       );
 
       const pvResult = await this.proxiedToken.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 0
+        TRANSFER_VALIDATOR_TYPE, 0,
       );
 
       assert.strictEqual(
         this.pausableValidator.address,
-        pvResult
+        pvResult,
       );
 
       const pauseState = await this.pausableValidator.paused.call();
@@ -142,7 +142,7 @@ contract('Full Integration Test', function(accounts) {
     });
 
     it('pausibleValidator should control trading', async () => {
-      await this.proxiedToken.transfer(to, 1, {from: tokenOwner});
+      await this.proxiedToken.transfer(to, 1, { from: tokenOwner });
       sentByTokenOwner++;
       this.tokenOwnerBalance = await this.proxiedToken.balanceOf.call(tokenOwner);
       assert.equal(this.tokenOwnerBalance.toNumber(), initialSupply - sentByTokenOwner);
@@ -150,14 +150,14 @@ contract('Full Integration Test', function(accounts) {
       this.toBalance = await this.proxiedToken.balanceOf.call(to);
       assert.equal(this.toBalance.toNumber(), 1);
 
-      await this.pausableValidator.pause({from: tokenOwner});
+      await this.pausableValidator.pause({ from: tokenOwner });
       let pauseState = await this.pausableValidator.paused.call();
       assert.isTrue(pauseState, 'should start unpaused');
 
       // Show con't transfer when paused
       await expectThrow(
-        this.proxiedToken.transfer(to, 1, {from: tokenOwner}),
-        'Should throw for transfer when paused'
+        this.proxiedToken.transfer(to, 1, { from: tokenOwner }),
+        'Should throw for transfer when paused',
       );
       this.tokenOwnerBalance = await this.proxiedToken.balanceOf.call(tokenOwner);
       assert.equal(this.tokenOwnerBalance.toNumber(), initialSupply - sentByTokenOwner);
@@ -166,7 +166,7 @@ contract('Full Integration Test', function(accounts) {
       assert.equal(this.toBalance.toNumber(), 1);
 
       // unpause
-      await this.pausableValidator.unpause({from: tokenOwner});
+      await this.pausableValidator.unpause({ from: tokenOwner });
       pauseState = await this.pausableValidator.paused.call();
       assert.isFalse(pauseState, 'should be unpaused');
     });
@@ -174,26 +174,26 @@ contract('Full Integration Test', function(accounts) {
     it('it should add a whitelistValidator', async () => {
       // Add Whitelist Validator
       this.whitelistValidator = await WhitelistValidator.new(
-        {from: tokenOwner}
+        { from: tokenOwner },
       );
       await this.proxiedToken.addModule(
         this.whitelistValidator.address,
-        {from: tokenOwner}
+        { from: tokenOwner },
       );
 
       const wlResult = await this.proxiedToken.getModuleByTypeAndIndex.call(
-        TRANSFER_VALIDATOR_TYPE, 1
+        TRANSFER_VALIDATOR_TYPE, 1,
       );
 
       assert.strictEqual(
         this.whitelistValidator.address,
-        wlResult
+        wlResult,
       );
     });
 
     it('whitelistValidator should control trading', async () => {
       // Add tokenOwner Address to Whitelist
-      await this.whitelistValidator.addAddress(tokenOwner, {from: tokenOwner});
+      await this.whitelistValidator.addAddress(tokenOwner, { from: tokenOwner });
 
       const isTokenOwnerWhitelisted = await this.whitelistValidator.isWhitelisted.call(tokenOwner);
       assert.isTrue(isTokenOwnerWhitelisted, 'TokenOwner not Whitelisted');
@@ -203,8 +203,8 @@ contract('Full Integration Test', function(accounts) {
 
       // Can't transfer to non-Whitelisted Address
       await expectThrow(
-        this.proxiedToken.transfer(to, 1, {from: tokenOwner}),
-        'Should throw for transfer when paused'
+        this.proxiedToken.transfer(to, 1, { from: tokenOwner }),
+        'Should throw for transfer when paused',
       );
       this.tokenOwnerBalance = await this.proxiedToken.balanceOf.call(tokenOwner);
       assert.equal(this.tokenOwnerBalance.toNumber(), initialSupply - sentByTokenOwner);
@@ -212,13 +212,13 @@ contract('Full Integration Test', function(accounts) {
       this.toBalance = await this.proxiedToken.balanceOf.call(to);
       assert.equal(this.toBalance.toNumber(), 1);
 
-      await this.whitelistValidator.addAddress(to, {from: tokenOwner});
+      await this.whitelistValidator.addAddress(to, { from: tokenOwner });
 
       isToWhitelisted = await this.whitelistValidator.isWhitelisted.call(to);
       assert.isTrue(isToWhitelisted, 'To Not Whitelisted');
 
       // Can transfer to Whitelisted Address
-      await this.proxiedToken.transfer(to, 1, {from: tokenOwner}),
+      await this.proxiedToken.transfer(to, 1, { from: tokenOwner }),
       sentByTokenOwner++;
 
       this.tokenOwnerBalance = await this.proxiedToken.balanceOf.call(tokenOwner);
@@ -231,8 +231,8 @@ contract('Full Integration Test', function(accounts) {
     describe('Before Upgrade - Swap AssetTokens for SimpleTokens', () => {
       it('both Maker and Taker should be on ProxiedToken Whitelist', async () => {
         //  First put the Taker on the ProxiedToken Whitelist
-        await this.whitelistValidator.addAddress(maker, {from: tokenOwner});
-        await this.whitelistValidator.addAddress(taker, {from: tokenOwner});
+        await this.whitelistValidator.addAddress(maker, { from: tokenOwner });
+        await this.whitelistValidator.addAddress(taker, { from: tokenOwner });
 
         const isTakerWhitelisted = await this.whitelistValidator.isWhitelisted.call(taker);
         assert.isTrue(isTakerWhitelisted, 'Taker not Whitelisted');
@@ -245,7 +245,7 @@ contract('Full Integration Test', function(accounts) {
         const makerSimpleBalance = await this.simpleToken.balanceOf.call(maker);
         assert.equal(makerSimpleBalance.toNumber(), 0, 'Maker should have 0 SimpleToken to Start');
 
-        await this.proxiedToken.transfer(maker, 1000, {from: tokenOwner});
+        await this.proxiedToken.transfer(maker, 1000, { from: tokenOwner });
 
         const makerAssetTokenBalance = await this.proxiedToken.balanceOf.call(maker);
         assert.equal(makerAssetTokenBalance.toNumber(), 1000, 'Maker should have 1000 AssetToken to Start');
@@ -256,7 +256,7 @@ contract('Full Integration Test', function(accounts) {
         assert.equal(
           traderSimpleBalance.toNumber(),
           simpleTokenTotalSupply.toNumber(),
-          'Trader should have All SimpleToken to Start'
+          'Trader should have All SimpleToken to Start',
         );
 
         const takerAssetTokenBalance = await this.proxiedToken.balanceOf.call(taker);
@@ -266,8 +266,8 @@ contract('Full Integration Test', function(accounts) {
       it('it should swap 1 AssetToken for 1 SimpleToken', async () => {
         // Swap ProxiedToken for SimpleToken
         // Set up approvals
-        await this.proxiedToken.approve(this.exchange.address, 1, {from: maker});
-        await this.simpleToken.approve(this.exchange.address, 1, {from: taker});
+        await this.proxiedToken.approve(this.exchange.address, 1, { from: maker });
+        await this.simpleToken.approve(this.exchange.address, 1, { from: taker });
 
         // Order parameters.
         const makerAddress = maker;
@@ -287,7 +287,7 @@ contract('Full Integration Test', function(accounts) {
         const msg = ABI.soliditySHA3(argTypes, args);
 
         const sig = web3.eth.sign(makerAddress, util.bufferToHex(msg));
-        const {v, r, s} = util.fromRpcSig(sig);
+        const { v, r, s } = util.fromRpcSig(sig);
 
         const tx = await this.exchange.fill(
           makerAddress, makerAmount, makerToken,
@@ -297,11 +297,9 @@ contract('Full Integration Test', function(accounts) {
             from: takerAddress,
             gasLimit: web3.toHex(200000),
             gasPrice: web3.eth.gasPrice,
-          }
+          },
         );
-        assert.ok(tx.logs.find( log => {
-          return log.event === 'Filled';
-        }));
+        assert.ok(tx.logs.find(log => log.event === 'Filled'));
       });
 
       it('Maker should have correct balances after', async () => {
@@ -317,7 +315,7 @@ contract('Full Integration Test', function(accounts) {
         assert.equal(
           traderSimpleBalance.toNumber(),
           simpleTokenTotalSupply.toNumber() - 1,
-          'Trader should have All SimpleToken to Start'
+          'Trader should have All SimpleToken to Start',
         );
 
         const takerAssetTokenBalance = await this.proxiedToken.balanceOf.call(taker);
@@ -327,9 +325,9 @@ contract('Full Integration Test', function(accounts) {
 
     it('it should upgrade Asset Token and maintain previous functionality', async () => {
       // Upgrade to Versionable Asset Token
-      const verionedAssetToken = await VersionableAssetTokenMockAbstraction.new({from: adminOwner});
+      const verionedAssetToken = await VersionableAssetTokenMockAbstraction.new({ from: adminOwner });
 
-      await this.proxy.upgradeToAndCall(verionedAssetToken.address, initializeDataV1, {from: tokenOwner});
+      await this.proxy.upgradeToAndCall(verionedAssetToken.address, initializeDataV1, { from: tokenOwner });
 
       const implAddressV1 = await this.proxy.implementation.call();
       assert.equal(implAddressV1, verionedAssetToken.address, 'Impl address incorrect after upgrade');
@@ -347,7 +345,7 @@ contract('Full Integration Test', function(accounts) {
       assert.equal(adminOwnerBalanceCheck.toNumber(), this.adminOwnerBalance.toNumber());
 
       // Can still transfer to a whitelisted Address
-      await this.proxiedToken.transfer(to, 1, {from: tokenOwner}),
+      await this.proxiedToken.transfer(to, 1, { from: tokenOwner }),
       sentByTokenOwner++;
 
       this.tokenOwnerBalance = await this.proxiedToken.balanceOf.call(tokenOwner);
@@ -358,8 +356,8 @@ contract('Full Integration Test', function(accounts) {
 
       // Still can't transfer to non-Whitelisted Address
       await expectThrow(
-        this.proxiedToken.transfer(taker, 1, {from: tokenOwner}),
-        'Should throw for transfer when paused'
+        this.proxiedToken.transfer(taker, 1, { from: tokenOwner }),
+        'Should throw for transfer when paused',
       );
       this.tokenOwnerBalance = await this.proxiedToken.balanceOf.call(tokenOwner);
       assert.equal(this.tokenOwnerBalance.toNumber(), initialSupply - sentByTokenOwner);
@@ -390,7 +388,7 @@ contract('Full Integration Test', function(accounts) {
         assert.equal(
           traderSimpleBalance.toNumber(),
           simpleTokenTotalSupply.toNumber() - 1,
-          'Trader should have All SimpleToken to Start'
+          'Trader should have All SimpleToken to Start',
         );
 
         const takerAssetTokenBalance = await this.proxiedToken.balanceOf.call(taker);
@@ -400,8 +398,8 @@ contract('Full Integration Test', function(accounts) {
       it('it should swap 1 AssetToken for 1 SimpleToken', async () => {
         // Swap ProxiedToken for SimpleToken
         // Set up approvals
-        await this.proxiedToken.approve(this.exchange.address, 1, {from: maker});
-        await this.simpleToken.approve(this.exchange.address, 1, {from: taker});
+        await this.proxiedToken.approve(this.exchange.address, 1, { from: maker });
+        await this.simpleToken.approve(this.exchange.address, 1, { from: taker });
 
         // Order parameters.
         const makerAddress = maker;
@@ -421,7 +419,7 @@ contract('Full Integration Test', function(accounts) {
         const msg = ABI.soliditySHA3(argTypes, args);
 
         const sig = web3.eth.sign(makerAddress, util.bufferToHex(msg));
-        const {v, r, s} = util.fromRpcSig(sig);
+        const { v, r, s } = util.fromRpcSig(sig);
 
         const tx = await this.exchange.fill(
           makerAddress, makerAmount, makerToken,
@@ -431,11 +429,9 @@ contract('Full Integration Test', function(accounts) {
             from: takerAddress,
             gasLimit: web3.toHex(200000),
             gasPrice: web3.eth.gasPrice,
-          }
+          },
         );
-        assert.ok(tx.logs.find( log => {
-          return log.event === 'Filled';
-        }));
+        assert.ok(tx.logs.find(log => log.event === 'Filled'));
       });
 
       it('Maker should have correct balances after', async () => {
@@ -451,7 +447,7 @@ contract('Full Integration Test', function(accounts) {
         assert.equal(
           traderSimpleBalance.toNumber(),
           simpleTokenTotalSupply.toNumber() - 2,
-          'Trader should have All SimpleToken to Start'
+          'Trader should have All SimpleToken to Start',
         );
 
         const takerAssetTokenBalance = await this.proxiedToken.balanceOf.call(taker);

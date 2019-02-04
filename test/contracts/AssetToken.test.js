@@ -1,9 +1,10 @@
 /* eslint max-len:0 */
 const expectThrow = require('../utils.js').expectThrow;
 const isEVMException = require('../utils.js').isEVMException;
+
 const AssetTokenAbstraction = artifacts.require('AssetToken');
 
-contract('AssetToken', function(accounts) {
+contract('AssetToken', function (accounts) {
   const owner = accounts[0];
   const to = accounts[1];
   const spender = accounts[2];
@@ -14,15 +15,15 @@ contract('AssetToken', function(accounts) {
   const decimalUnits = 18;
   const tokenSymbol = 'ABC';
 
-  beforeEach( async () => {
-    this.token = await AssetTokenAbstraction.new({from: owner});
+  beforeEach(async () => {
+    this.token = await AssetTokenAbstraction.new({ from: owner });
     await this.token.initialize(
       owner,
       initialSupply,
       tokenName,
       decimalUnits,
       tokenSymbol,
-      {from: owner}
+      { from: owner },
     );
   });
 
@@ -61,7 +62,7 @@ contract('AssetToken', function(accounts) {
           tokenName,
           decimalUnits,
           tokenSymbol,
-          {from: owner}
+          { from: owner },
         );
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
@@ -72,7 +73,7 @@ contract('AssetToken', function(accounts) {
 
     it('it should not be able to create over 2^256 - 1 (max) tokens', async () => {
       const errMsg = 'It should throw when trying to create too many tokens';
-      const token2 = await AssetTokenAbstraction.new({from: owner});
+      const token2 = await AssetTokenAbstraction.new({ from: owner });
       await expectThrow(
         token2.initialize(
           owner,
@@ -80,20 +81,20 @@ contract('AssetToken', function(accounts) {
           tokenName,
           decimalUnits,
           tokenSymbol,
-          {from: owner}
+          { from: owner },
         ),
-        errMsg
+        errMsg,
       );
     });
     it('should be able to create 2^256 - 1 (max) tokens', async () => {
-      const token2 = await AssetTokenAbstraction.new({from: owner});
+      const token2 = await AssetTokenAbstraction.new({ from: owner });
       await token2.initialize(
         owner,
         '115792089237316195423570985008687907853269984665640564039457584007913129639935',
         tokenName,
         decimalUnits,
         tokenSymbol,
-        {from: owner}
+        { from: owner },
       );
       const totalSupply = await token2.totalSupply();
       const match = totalSupply.equals('1.15792089237316195423570985008687907853269984665640564039457584007913129639935e+77');
@@ -131,19 +132,19 @@ contract('AssetToken', function(accounts) {
     it('it should allow the owner to change the name', async () => {
       const errMsg = 'it should change the name for the owner';
       const beforeName = await this.token.name.call();
-      const afterName = beforeName + 'New';
+      const afterName = `${beforeName}New`;
 
-      await this.token.changeName(afterName, {from: owner});
+      await this.token.changeName(afterName, { from: owner });
       const setName = await this.token.name.call();
       assert.equal(setName, afterName, errMsg);
     });
     it('it should not allow a non-owner to change the name', async () => {
       const errMsg = 'it should not change the name for a non-owner';
       const beforeName = await this.token.name.call();
-      const afterName = beforeName + 'New';
+      const afterName = `${beforeName}New`;
 
       try {
-        await this.token.changeName(afterName, {from: to});
+        await this.token.changeName(afterName, { from: to });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -155,12 +156,12 @@ contract('AssetToken', function(accounts) {
     });
     it('it should not allow name change before initialization', async () => {
       const errMsg = 'it should not change the name before it is initialized';
-      const newInstance = await AssetTokenAbstraction.new({from: owner});
+      const newInstance = await AssetTokenAbstraction.new({ from: owner });
       const beforeName = await newInstance.name.call();
       assert.equal(beforeName, '', 'Name should start empty');
 
       try {
-        await newInstance.changeName(tokenName, {from: owner});
+        await newInstance.changeName(tokenName, { from: owner });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -173,19 +174,19 @@ contract('AssetToken', function(accounts) {
     it('it should allow the owner to change the symbol', async () => {
       const errMsg = 'it should change the symbol for the owner';
       const beforeSymbol = await this.token.symbol.call();
-      const afterSymbol = beforeSymbol + 'New';
+      const afterSymbol = `${beforeSymbol}New`;
 
-      await this.token.changeSymbol(afterSymbol, {from: owner});
+      await this.token.changeSymbol(afterSymbol, { from: owner });
       const setSymbol = await this.token.symbol.call();
       assert.equal(setSymbol, afterSymbol, errMsg);
     });
     it('it should not allow a non-owner to change the symbol', async () => {
       const errMsg = 'it should not change the symbol for a non-owner';
       const beforeSymbol = await this.token.symbol.call();
-      const afterSymbol = beforeSymbol + 'New';
+      const afterSymbol = `${beforeSymbol}New`;
 
       try {
-        await this.token.changeSymbol(afterSymbol, {from: to});
+        await this.token.changeSymbol(afterSymbol, { from: to });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -197,12 +198,12 @@ contract('AssetToken', function(accounts) {
     });
     it('it should not allow symbol change before initialization', async () => {
       const errMsg = 'it should not change the symbol before it is initialized';
-      const newInstance = await AssetTokenAbstraction.new({from: owner});
+      const newInstance = await AssetTokenAbstraction.new({ from: owner });
       const beforeSymbol = await newInstance.symbol.call();
       assert.equal(beforeSymbol, '', 'Symbol should start empty');
 
       try {
-        await newInstance.changeSymbol(tokenSymbol, {from: owner});
+        await newInstance.changeSymbol(tokenSymbol, { from: owner });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -213,12 +214,12 @@ contract('AssetToken', function(accounts) {
 
   describe('.transfer()', () => {
     it('should transfer 10000 to to with accounts[0] having 10000', async () => {
-      await this.token.transfer(to, initialSupply, {from: accounts[0]});
+      await this.token.transfer(to, initialSupply, { from: accounts[0] });
       const balance = await this.token.balanceOf.call(to);
       assert.strictEqual(balance.toNumber(), initialSupply);
     });
     it('emits a transfer event', async () => {
-      const {logs} = await this.token.transfer(to, initialSupply, {from: owner});
+      const { logs } = await this.token.transfer(to, initialSupply, { from: owner });
 
       assert.equal(logs.length, 1);
       assert.equal(logs[0].event, 'Transfer');
@@ -232,7 +233,7 @@ contract('AssetToken', function(accounts) {
       assert.strictEqual(balanceBefore.toNumber(), initialSupply);
       const failingAmount = initialSupply + 1;
       try {
-        await this.token.transfer(to, failingAmount, {from: accounts[0]});
+        await this.token.transfer(to, failingAmount, { from: accounts[0] });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         const balanceAfter = await this.token.balanceOf.call(accounts[0]);
@@ -246,8 +247,8 @@ contract('AssetToken', function(accounts) {
       const balanceZeroBefore = await this.token.balanceOf.call(ZERO_ADDRESS);
       assert.strictEqual(balanceZeroBefore.toNumber(), 0);
       await expectThrow(
-        this.token.transfer(ZERO_ADDRESS, initialSupply, {from: owner}),
-        errMsg
+        this.token.transfer(ZERO_ADDRESS, initialSupply, { from: owner }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(owner);
       assert.strictEqual(balanceAfter.toNumber(), initialSupply);
@@ -259,8 +260,8 @@ contract('AssetToken', function(accounts) {
       const balanceZeroBefore = await this.token.balanceOf.call(this.token.address);
       assert.strictEqual(balanceZeroBefore.toNumber(), 0);
       await expectThrow(
-        this.token.transfer(this.token.address, initialSupply, {from: owner}),
-        errMsg
+        this.token.transfer(this.token.address, initialSupply, { from: owner }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(owner);
       assert.strictEqual(balanceAfter.toNumber(), initialSupply);
@@ -273,7 +274,7 @@ contract('AssetToken', function(accounts) {
     it('it should allow approval', async () => {
       const errMsg = 'it should approve the spender';
       const amount = 100;
-      const {logs} = await this.token.approve(spender, amount, {from: owner});
+      const { logs } = await this.token.approve(spender, amount, { from: owner });
 
       assert.equal(logs.length, 1);
       assert.equal(logs[0].event, 'Approval');
@@ -287,14 +288,14 @@ contract('AssetToken', function(accounts) {
     it('on second approval it should allow and replace amount', async () => {
       const errMsg = 'it should approve the spender and replace amount';
       const amount = 1;
-      await this.token.approve(spender, amount, {from: owner});
+      await this.token.approve(spender, amount, { from: owner });
 
       const allowance = await this.token.allowance(owner, spender);
       assert.equal(allowance.toNumber(), amount, 'initial approval incorrect');
 
       const amount1 = amount + 1;
 
-      await this.token.approve(spender, amount1, {from: owner});
+      await this.token.approve(spender, amount1, { from: owner });
 
       const allowance1 = await this.token.allowance(owner, spender);
       assert.equal(allowance1.toNumber(), amount1, errMsg);
@@ -302,7 +303,7 @@ contract('AssetToken', function(accounts) {
     it('it should allow approval over owner balance', async () => {
       const errMsg = 'it should approve the spender';
       const amount = initialSupply + 1;
-      await this.token.approve(spender, amount, {from: owner});
+      await this.token.approve(spender, amount, { from: owner });
 
       const allowance = await this.token.allowance(owner, spender);
       assert.equal(allowance.toNumber(), amount, errMsg);
@@ -312,11 +313,11 @@ contract('AssetToken', function(accounts) {
   describe('.decreaseApproval()', () => {
     const amount = 100;
 
-    beforeEach( async () => {
-      await this.token.approve(spender, amount, {from: owner});
+    beforeEach(async () => {
+      await this.token.approve(spender, amount, { from: owner });
     });
     it('it should reduce spender\'s allowance', async () => {
-      const {logs} = await this.token.decreaseApproval(spender, amount, {from: owner});
+      const { logs } = await this.token.decreaseApproval(spender, amount, { from: owner });
 
       assert.equal(logs.length, 1);
       assert.equal(logs[0].event, 'Approval');
@@ -328,8 +329,8 @@ contract('AssetToken', function(accounts) {
       assert.equal(allowance, 0);
     });
     it('on second approval it should reduce to difference', async () => {
-      await this.token.approve(spender, amount + 1, {from: owner});
-      await this.token.decreaseApproval(spender, amount, {from: owner});
+      await this.token.approve(spender, amount + 1, { from: owner });
+      await this.token.decreaseApproval(spender, amount, { from: owner });
 
       const allowance = await this.token.allowance(owner, spender);
       assert.equal(allowance.toNumber(), 1);
@@ -337,7 +338,7 @@ contract('AssetToken', function(accounts) {
     it('decreases Approval to 0 when sent more than approval', async () => {
       const preAllowance = await this.token.allowance(owner, spender);
       assert.equal(preAllowance.toNumber(), amount);
-      await this.token.decreaseApproval(spender, amount + 1, {from: owner});
+      await this.token.decreaseApproval(spender, amount + 1, { from: owner });
 
       const allowance = await this.token.allowance(owner, spender);
       assert.equal(allowance.toNumber(), 0);
@@ -347,8 +348,8 @@ contract('AssetToken', function(accounts) {
   describe('.transferFrom()', () => {
     const amount = 100;
 
-    beforeEach( async () => {
-      await this.token.approve(spender, amount, {from: owner});
+    beforeEach(async () => {
+      await this.token.approve(spender, amount, { from: owner });
     });
 
     it(`should transfer ${amount} to 'to' account on behalf of owner`, async () => {
@@ -357,7 +358,7 @@ contract('AssetToken', function(accounts) {
       const beforeTo = await this.token.balanceOf.call(to);
       assert.strictEqual(beforeTo.toNumber(), 0, 'To does not have correct start balance');
 
-      const {logs} = await this.token.transferFrom(owner, to, amount, {from: spender});
+      const { logs } = await this.token.transferFrom(owner, to, amount, { from: spender });
       assert.equal(logs.length, 1);
       assert.equal(logs[0].event, 'Transfer');
       assert.equal(logs[0].args.from, owner);
@@ -373,11 +374,11 @@ contract('AssetToken', function(accounts) {
     it('should fail when trying to transferFrom more than owner balance', async () => {
       const errMsg = 'should not transfer more than owner balance';
       const failingAmount = initialSupply + 1;
-      await this.token.approve(spender, failingAmount, {from: owner});
+      await this.token.approve(spender, failingAmount, { from: owner });
 
       await expectThrow(
-        this.token.transferFrom(owner, to, failingAmount, {from: spender}),
-        errMsg
+        this.token.transferFrom(owner, to, failingAmount, { from: spender }),
+        errMsg,
       );
 
       const balanceAfter = await this.token.balanceOf.call(owner);
@@ -390,8 +391,8 @@ contract('AssetToken', function(accounts) {
       const failingAmount = amount + 1;
 
       await expectThrow(
-        this.token.transferFrom(owner, to, failingAmount, {from: spender}),
-        errMsg
+        this.token.transferFrom(owner, to, failingAmount, { from: spender }),
+        errMsg,
       );
 
       const balanceAfter = await this.token.balanceOf.call(owner);
@@ -402,8 +403,8 @@ contract('AssetToken', function(accounts) {
       const errMsg = 'should not transfer to the zero address';
 
       await expectThrow(
-        this.token.transferFrom(owner, ZERO_ADDRESS, amount, {from: spender}),
-        errMsg
+        this.token.transferFrom(owner, ZERO_ADDRESS, amount, { from: spender }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(owner);
       assert.strictEqual(balanceAfter.toNumber(), initialSupply);
@@ -412,8 +413,8 @@ contract('AssetToken', function(accounts) {
     it('should fail when trying to transfer to contract address', async () => {
       const errMsg = 'should not transfer to contract address';
       await expectThrow(
-        this.token.transferFrom(owner, this.token.address, amount, {from: spender}),
-        errMsg
+        this.token.transferFrom(owner, this.token.address, amount, { from: spender }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(owner);
       assert.strictEqual(balanceAfter.toNumber(), initialSupply);
@@ -424,8 +425,8 @@ contract('AssetToken', function(accounts) {
     const amount = 100;
     const data = 'Reason for force transfer';
 
-    beforeEach( async () => {
-      await this.token.transfer(spender, amount, {from: owner});
+    beforeEach(async () => {
+      await this.token.transfer(spender, amount, { from: owner });
 
       const spenderBalance = await this.token.balanceOf.call(spender);
       assert.strictEqual(spenderBalance.toNumber(), amount, 'to balance not correct in beforeEach');
@@ -435,7 +436,7 @@ contract('AssetToken', function(accounts) {
       const beforeTo = await this.token.balanceOf.call(to);
       assert.strictEqual(beforeTo.toNumber(), 0, 'To does not have correct start balance');
 
-      const {logs} = await this.token.forceTransfer(spender, to, amount, data, {from: owner});
+      const { logs } = await this.token.forceTransfer(spender, to, amount, data, { from: owner });
       assert.equal(logs.length, 1);
       assert.equal(logs[0].event, 'ForceTransfer');
       assert.equal(logs[0].args.from, spender);
@@ -456,8 +457,8 @@ contract('AssetToken', function(accounts) {
       const failingAmount = amount + 1;
 
       await expectThrow(
-        this.token.forceTransfer(spender, to, failingAmount, data, {from: owner}),
-        errMsg
+        this.token.forceTransfer(spender, to, failingAmount, data, { from: owner }),
+        errMsg,
       );
 
       const balanceAfter = await this.token.balanceOf.call(spender);
@@ -468,8 +469,8 @@ contract('AssetToken', function(accounts) {
       const errMsg = 'should not transfer to the zero address';
 
       await expectThrow(
-        this.token.forceTransfer(spender, ZERO_ADDRESS, amount, data, {from: owner}),
-        errMsg
+        this.token.forceTransfer(spender, ZERO_ADDRESS, amount, data, { from: owner }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(spender);
       assert.strictEqual(balanceAfter.toNumber(), amount);
@@ -478,8 +479,8 @@ contract('AssetToken', function(accounts) {
     it('should fail when trying to transfer to contract address', async () => {
       const errMsg = 'should not transfer to contract address';
       await expectThrow(
-        this.token.forceTransfer(spender, this.token.address, amount, data, {from: owner}),
-        errMsg
+        this.token.forceTransfer(spender, this.token.address, amount, data, { from: owner }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(spender);
       assert.strictEqual(balanceAfter.toNumber(), amount);
@@ -488,8 +489,8 @@ contract('AssetToken', function(accounts) {
     it('should fail when called by non-owner', async () => {
       const errMsg = 'non-owner should not be able to forceTransfer';
       await expectThrow(
-        this.token.forceTransfer(spender, to, amount, data, {from: to}),
-        errMsg
+        this.token.forceTransfer(spender, to, amount, data, { from: to }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(spender);
       assert.strictEqual(balanceAfter.toNumber(), amount);
@@ -503,7 +504,7 @@ contract('AssetToken', function(accounts) {
         0x00,
         0x00,
         0,
-        {from: owner}
+        { from: owner },
       );
       assert.isTrue(isValid, errMsg);
     });
@@ -511,7 +512,7 @@ contract('AssetToken', function(accounts) {
 
   describe('.mint()', () => {
     it('should mint initialSupply # of tokens to to account when called by owner', async () => {
-      await this.token.mint(to, initialSupply, {from: owner});
+      await this.token.mint(to, initialSupply, { from: owner });
 
       const toBalance = await this.token.balanceOf.call(to);
       assert.strictEqual(toBalance.toNumber(), initialSupply);
@@ -524,7 +525,7 @@ contract('AssetToken', function(accounts) {
     });
 
     it('emits a mint and transfer events', async () => {
-      const {logs} = await this.token.mint(to, initialSupply, {from: owner});
+      const { logs } = await this.token.mint(to, initialSupply, { from: owner });
 
       assert.equal(logs.length, 2);
 
@@ -541,8 +542,8 @@ contract('AssetToken', function(accounts) {
     it('should fail when trying to mint from non-Owner account', async () => {
       const errMsg = 'should not mint from non-Owner';
       await expectThrow(
-        this.token.mint(to, initialSupply, {from: to}),
-        errMsg
+        this.token.mint(to, initialSupply, { from: to }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(to);
       assert.strictEqual(balanceAfter.toNumber(), 0);
@@ -550,14 +551,14 @@ contract('AssetToken', function(accounts) {
 
     it('should fail when trying to mint from Owner account if minting is Finished', async () => {
       const errMsg = 'should not mint when minting is finished';
-      const {logs} = await this.token.finishMinting({from: owner});
+      const { logs } = await this.token.finishMinting({ from: owner });
 
       assert.equal(logs.length, 1);
       assert.equal(logs[0].event, 'MintFinished');
 
       await expectThrow(
-        this.token.mint(to, initialSupply, {from: to}),
-        errMsg
+        this.token.mint(to, initialSupply, { from: to }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(to);
       assert.strictEqual(balanceAfter.toNumber(), 0);
@@ -566,7 +567,7 @@ contract('AssetToken', function(accounts) {
 
   describe('.burn()', () => {
     it('should burn initialSupply # of tokens from Owner account', async () => {
-      await this.token.burn(initialSupply, {from: owner});
+      await this.token.burn(initialSupply, { from: owner });
 
       const ownerBalance = await this.token.balanceOf.call(owner);
       assert.strictEqual(ownerBalance.toNumber(), 0);
@@ -576,7 +577,7 @@ contract('AssetToken', function(accounts) {
     });
 
     it('emits a burn and transfer events', async () => {
-      const {logs} = await this.token.burn(initialSupply, {from: owner});
+      const { logs } = await this.token.burn(initialSupply, { from: owner });
 
       assert.equal(logs.length, 2);
 
@@ -592,11 +593,11 @@ contract('AssetToken', function(accounts) {
 
     it('should fail when trying to burn from non-Owner account', async () => {
       const errMsg = 'should not burn from non-Owner';
-      await this.token.transfer(to, initialSupply, {from: owner});
+      await this.token.transfer(to, initialSupply, { from: owner });
 
       await expectThrow(
-        this.token.burn(initialSupply, {from: to}),
-        errMsg
+        this.token.burn(initialSupply, { from: to }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(to);
       assert.strictEqual(balanceAfter.toNumber(), initialSupply);
@@ -605,21 +606,21 @@ contract('AssetToken', function(accounts) {
 
   describe('.burnFrom()', () => {
     beforeEach(async () => {
-      await this.token.transfer(to, initialSupply, {from: owner});
+      await this.token.transfer(to, initialSupply, { from: owner });
 
       const toBalance = await this.token.balanceOf.call(to);
       assert.strictEqual(toBalance.toNumber(), initialSupply, 'to balance not correct in beforeEach');
     });
 
     it('should burn initialSupply # of tokens from Owner account', async () => {
-      await this.token.burnFrom(to, initialSupply, {from: owner});
+      await this.token.burnFrom(to, initialSupply, { from: owner });
 
       const totalSupply = await this.token.totalSupply.call();
       assert.strictEqual(totalSupply.toNumber(), 0);
     });
 
     it('emits a burn and transfer events', async () => {
-      const {logs} = await this.token.burnFrom(to, initialSupply, {from: owner});
+      const { logs } = await this.token.burnFrom(to, initialSupply, { from: owner });
 
       assert.equal(logs.length, 2);
 
@@ -636,8 +637,8 @@ contract('AssetToken', function(accounts) {
     it('should fail when called from a non-Owner account', async () => {
       const errMsg = 'should not burnFrom for non-Owner';
       await expectThrow(
-        this.token.burnFrom(to, initialSupply, {from: to}),
-        errMsg
+        this.token.burnFrom(to, initialSupply, { from: to }),
+        errMsg,
       );
       const balanceAfter = await this.token.balanceOf.call(to);
       assert.strictEqual(balanceAfter.toNumber(), initialSupply);

@@ -1,7 +1,7 @@
 /* eslint max-len:0 */
 const AssetTokenAbstraction = artifacts.require('AssetToken');
 
-contract('deploy_AssetToken', function(accounts) {
+contract('deploy_AssetToken', function (accounts) {
   const expectedContractArgs = {
     owner: accounts[0],
     initialAmount: 0,
@@ -10,7 +10,7 @@ contract('deploy_AssetToken', function(accounts) {
     symbol: 'MER-v1',
   };
 
-  before( async () => {
+  before(async () => {
     this.deployed = await AssetTokenAbstraction.deployed();
   });
 

@@ -1,18 +1,19 @@
 const isEVMException = require('../../utils').isEVMException;
+
 const PausableValidator = artifacts.require('PausableValidator');
 
-contract('PausableValidator', function(accounts) {
+contract('PausableValidator', (accounts) => {
   const owner = accounts[0];
   const nonOwner = accounts[1];
 
   let instance;
 
-  beforeEach( async () => {
-    instance = await PausableValidator.new({from: owner});
+  beforeEach(async () => {
+    instance = await PausableValidator.new({ from: owner });
   });
 
   describe('initial state', () => {
-    it('it should initialize unpaused', async ()=> {
+    it('it should initialize unpaused', async () => {
       const errMsg = 'Should report valid (true) when not paused';
       const paused = await instance.paused.call();
       assert.isFalse(paused, errMsg);
@@ -20,17 +21,17 @@ contract('PausableValidator', function(accounts) {
   });
 
   describe('.pause()', () => {
-    it('it should allow owner to pause instance', async ()=> {
+    it('it should allow owner to pause instance', async () => {
       const errMsg = 'Should allow owner to pause instance';
-      await instance.pause({from: owner});
+      await instance.pause({ from: owner });
       const paused = await instance.paused.call();
       assert.isTrue(paused, errMsg);
     });
 
-    it('it should not allow non-owner to pause instance', async ()=> {
+    it('it should not allow non-owner to pause instance', async () => {
       const errMsg = 'Should not allow non-owner to pause instance';
       try {
-        await instance.pause({from: nonOwner});
+        await instance.pause({ from: nonOwner });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         const paused = await instance.paused.call();
@@ -40,13 +41,13 @@ contract('PausableValidator', function(accounts) {
       assert.fail('Expected throw not received');
     });
 
-    it('it should reject pause if already paused', async ()=> {
+    it('it should reject pause if already paused', async () => {
       const errMsg = 'Should reject pause if already paused';
-      await instance.pause({from: owner});
+      await instance.pause({ from: owner });
       const paused = await instance.paused.call();
       assert.isTrue(paused, 'Should started paused');
       try {
-        await instance.pause({from: nonOwner});
+        await instance.pause({ from: nonOwner });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         const paused = await instance.paused.call();
@@ -61,26 +62,26 @@ contract('PausableValidator', function(accounts) {
     const errStartState = 'Should start paused';
 
     beforeEach(async () => {
-      await instance.pause({from: owner});
+      await instance.pause({ from: owner });
     });
 
-    it('it should allow owner to unpause instance', async ()=> {
+    it('it should allow owner to unpause instance', async () => {
       const errMsg = 'Should allow owner to unpause instance';
       const start = await instance.paused.call();
       assert.isTrue(start, errStartState);
 
-      await instance.unpause({from: owner});
+      await instance.unpause({ from: owner });
       const isPaused = await instance.paused.call();
       assert.isFalse(isPaused, errMsg);
     });
 
-    it('it should not allow non-owner to unpause instance', async ()=> {
+    it('it should not allow non-owner to unpause instance', async () => {
       const errMsg = 'Should not allow non-owner to unpause instance';
       const start = await instance.paused.call();
       assert.isTrue(start, errStartState);
 
       try {
-        await instance.unpause({from: nonOwner});
+        await instance.unpause({ from: nonOwner });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         const paused = await instance.paused.call();
@@ -90,16 +91,16 @@ contract('PausableValidator', function(accounts) {
       assert.fail('Expected throw not received');
     });
 
-    it('it should reject unpause if not paused', async ()=> {
+    it('it should reject unpause if not paused', async () => {
       const errMsg = 'Should reject unpause if not paused';
       const start = await instance.paused.call();
       assert.isTrue(start, errStartState);
-      await instance.unpause({from: owner});
+      await instance.unpause({ from: owner });
       const isNotPaused = await instance.paused.call();
       assert.isFalse(isNotPaused, 'Should be unpaused');
 
       try {
-        await instance.unpause({from: nonOwner});
+        await instance.unpause({ from: nonOwner });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         const paused = await instance.paused.call();
@@ -120,7 +121,7 @@ contract('PausableValidator', function(accounts) {
         0x00,
         0x00,
         0x00,
-        0
+        0,
       );
 
       assert.isTrue(result, errMsg);
@@ -128,7 +129,7 @@ contract('PausableValidator', function(accounts) {
 
     it('returns invalid (false) when paused', async () => {
       const errMsg = 'Should report invalid (false) when paused';
-      await instance.pause({from: owner});
+      await instance.pause({ from: owner });
       const state = await instance.paused();
       assert.isTrue(state);
 
@@ -136,7 +137,7 @@ contract('PausableValidator', function(accounts) {
         0x00,
         0x00,
         0x00,
-        0
+        0,
       );
 
       assert.isFalse(result, errMsg);
@@ -151,7 +152,7 @@ contract('PausableValidator', function(accounts) {
 
       assert.strictEqual(
         TRANSFER_VALIDATOR_NAME,
-        web3._extend.utils.toAscii(name).replace(/\0/g, '')
+        web3._extend.utils.toAscii(name).replace(/\0/g, ''),
       );
     });
   });

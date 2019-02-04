@@ -1,15 +1,15 @@
 /* eslint max-len:0 */
-const expectThrow = require('../../utils.js').expectThrow;
 const MeridioCrowdsaleAbstraction = artifacts.require('MeridioCrowdsale');
 const AssetTokenAbstraction = artifacts.require('AssetToken');
 const WhitelistValidator = artifacts.require('WhitelistValidator');
 const PausableValidator = artifacts.require('PausableValidator');
 
-const {latestTime} = require('openzeppelin-solidity/test/helpers/latestTime');
-const {advanceBlock} = require('openzeppelin-solidity/test/helpers/advanceToBlock');
-const {duration} = require('openzeppelin-solidity/test/helpers/increaseTime');
+const { latestTime } = require('openzeppelin-solidity/test/helpers/latestTime');
+const { advanceBlock } = require('openzeppelin-solidity/test/helpers/advanceToBlock');
+const { duration } = require('openzeppelin-solidity/test/helpers/increaseTime');
+const expectThrow = require('../../utils.js').expectThrow;
 
-contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
+contract('MeridioCrowdSale - preValidatePurchase', function (accounts) {
   const owner = accounts[0];
   const purchaser = accounts[1];
   const badAddress = accounts[2];
@@ -23,16 +23,16 @@ contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
   const decimalUnits = 18;
   const tokenSymbol = 'ABC';
 
-  beforeEach( async () => {
+  beforeEach(async () => {
     await advanceBlock();
-    this.token = await AssetTokenAbstraction.new({from: owner});
+    this.token = await AssetTokenAbstraction.new({ from: owner });
     await this.token.initialize(
       owner,
       initialSupply,
       tokenName,
       decimalUnits,
       tokenSymbol,
-      {from: owner}
+      { from: owner },
     );
 
     this.openingTime = (await latestTime());
@@ -43,26 +43,26 @@ contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
       this.closingTime,
       rate,
       this.token.address,
-      {from: owner}
+      { from: owner },
     );
 
-    await this.token.approve(this.crowdsale.address, initialSupply, {from: owner});
+    await this.token.approve(this.crowdsale.address, initialSupply, { from: owner });
   });
 
   describe('_preValidatePurchase - Whitelist Validator', () => {
     beforeEach(async () => {
-      this.whitelist = await WhitelistValidator.new({from: owner});
+      this.whitelist = await WhitelistValidator.new({ from: owner });
 
       await this.token.addModule(
         this.whitelist.address,
-        {from: owner}
+        { from: owner },
       );
     });
 
     it('should allow a purchase to whitelisted address', async () => {
       const value = 10;
 
-      await this.whitelist.addAddress(purchaser, {from: owner});
+      await this.whitelist.addAddress(purchaser, { from: owner });
       const isAdded = await this.whitelist.isWhitelisted(purchaser);
       assert.isTrue(isAdded, 'Purchaser address not properly added');
 
@@ -78,8 +78,8 @@ contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
         purchaser,
         {
           from: purchaser,
-          value: value,
-        }
+          value,
+        },
       );
 
       const buyEvent = buyTokens.logs[buyTokens.logs.length - 1];
@@ -107,21 +107,21 @@ contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
           badAddress,
           {
             from: badAddress,
-            value: value,
-          }
+            value,
+          },
         ),
-        errMsg
+        errMsg,
       );
     });
   });
 
   describe('_preValidatePurchase - Pausable Validator', () => {
     beforeEach(async () => {
-      this.pausable = await PausableValidator.new({from: owner});
+      this.pausable = await PausableValidator.new({ from: owner });
 
       await this.token.addModule(
         this.pausable.address,
-        {from: owner}
+        { from: owner },
       );
     });
 
@@ -143,8 +143,8 @@ contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
         purchaser,
         {
           from: purchaser,
-          value: value,
-        }
+          value,
+        },
       );
 
       const buyEvent = buyTokens.logs[buyTokens.logs.length - 1];
@@ -164,7 +164,7 @@ contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
       const errMsg = 'It should throw when token is paused';
       const value = 10;
 
-      await this.pausable.pause({from: owner});
+      await this.pausable.pause({ from: owner });
 
       const isPaused = await this.pausable.paused();
       assert.isTrue(isPaused, 'should not be paused');
@@ -173,10 +173,10 @@ contract('MeridioCrowdSale - preValidatePurchase', function(accounts) {
           purchaser,
           {
             from: purchaser,
-            value: value,
-          }
+            value,
+          },
         ),
-        errMsg
+        errMsg,
       );
     });
   });

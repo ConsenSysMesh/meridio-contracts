@@ -1,14 +1,15 @@
 /* eslint max-len:0 */
-const {expectThrow} = require('../../utils');
+const { expectThrow } = require('../../utils');
+
 const SenderBlacklistValidatorAbstraction = artifacts.require('SenderBlacklistValidator');
 
-contract('SenderBlacklistValidator', function(accounts) {
+contract('SenderBlacklistValidator', (accounts) => {
   const from = accounts[0];
   const investor1 = accounts[1];
   let instance;
 
-  beforeEach( async () => {
-    instance = await SenderBlacklistValidatorAbstraction.new({from});
+  beforeEach(async () => {
+    instance = await SenderBlacklistValidatorAbstraction.new({ from });
   });
 
   describe('is Ownable', () => {
@@ -32,7 +33,7 @@ contract('SenderBlacklistValidator', function(accounts) {
       const name = await instance.getName.call();
       assert.strictEqual(
         TRANSFER_VALIDATOR_NAME,
-        web3._extend.utils.toAscii(name).replace(/\0/g, '')
+        web3._extend.utils.toAscii(name).replace(/\0/g, ''),
       );
     });
   });
@@ -49,7 +50,7 @@ contract('SenderBlacklistValidator', function(accounts) {
   describe('.addAddress()', async () => {
     it('allows owner to add new address to blacklist', async () => {
       const errMsg = 'Address not added';
-      const receipt = await instance.addAddress(investor1, {from});
+      const receipt = await instance.addAddress(investor1, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogAddAddress');
@@ -63,35 +64,35 @@ contract('SenderBlacklistValidator', function(accounts) {
       const isBlacklisted = await instance.isBlacklisted.call(investor1);
       assert.isFalse(isBlacklisted, 'Should not already be on the blacklist');
       await expectThrow(
-        instance.addAddress(investor1, {from: investor1}),
-        errMsg
+        instance.addAddress(investor1, { from: investor1 }),
+        errMsg,
       );
     });
     it('does not add an address twice', async () => {
       const errMsg = 'It should not allow adding address twice';
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isBlacklisted = await instance.isBlacklisted.call(investor1);
       assert.isTrue(isBlacklisted, 'Should be on the blacklist');
       await expectThrow(
-        instance.addAddress(investor1, {from}),
-        errMsg
+        instance.addAddress(investor1, { from }),
+        errMsg,
       );
     });
     it('does not add a 0 address', async () => {
       const errMsg = 'It should not allow adding 0 address';
       await expectThrow(
-        instance.addAddress(0, {from}),
-        errMsg
+        instance.addAddress(0, { from }),
+        errMsg,
       );
     });
     it('does not add address when paused', async () => {
       const errMsg = 'It should not allow adding address when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.addAddress(investor1, {from}),
-        errMsg
+        instance.addAddress(investor1, { from }),
+        errMsg,
       );
     });
   });
@@ -100,11 +101,11 @@ contract('SenderBlacklistValidator', function(accounts) {
     it('allows owner to remove an address from blacklist', async () => {
       const errMsg = 'Address not removed';
 
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isBlacklisted = await instance.isBlacklisted.call(investor1);
       assert.isTrue(isBlacklisted, 'Should be on the blacklist');
 
-      const receipt = await instance.removeAddress(investor1, {from});
+      const receipt = await instance.removeAddress(investor1, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogRemoveAddress');
@@ -116,13 +117,13 @@ contract('SenderBlacklistValidator', function(accounts) {
     it('does not allow non-owner to remove from blacklist', async () => {
       const errMsg = 'It should not allow a non-owner to add an address';
 
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isBlacklisted = await instance.isBlacklisted.call(investor1);
       assert.isTrue(isBlacklisted, 'Should be on the blacklist');
 
       await expectThrow(
-        instance.removeAddress(investor1, {from: investor1}),
-        errMsg
+        instance.removeAddress(investor1, { from: investor1 }),
+        errMsg,
       );
     });
     it('it throws when trying to remove an address not on the list', async () => {
@@ -131,24 +132,24 @@ contract('SenderBlacklistValidator', function(accounts) {
       const isBlacklisted = await instance.isBlacklisted.call(investor1);
       assert.isFalse(isBlacklisted, 'Should not be on the blacklist');
       await expectThrow(
-        instance.removeAddress(investor1, {from}),
-        errMsg
+        instance.removeAddress(investor1, { from }),
+        errMsg,
       );
     });
     it('it does not remove address when paused', async () => {
       const errMsg = 'It should not allow removing address when paused';
 
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isBlacklisted = await instance.isBlacklisted.call(investor1);
       assert.isTrue(isBlacklisted, 'Should be on the blacklist');
 
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
 
       await expectThrow(
-        instance.removeAddress(investor1, {from}),
-        errMsg
+        instance.removeAddress(investor1, { from }),
+        errMsg,
       );
     });
   });
@@ -161,7 +162,7 @@ contract('SenderBlacklistValidator', function(accounts) {
         0x00,
         from,
         0x00,
-        0
+        0,
       );
       assert.isFalse(result, errMsg);
     });
@@ -174,7 +175,7 @@ contract('SenderBlacklistValidator', function(accounts) {
         0x00,
         from,
         investor1,
-        0
+        0,
       );
       assert.isFalse(result, errMsg);
     });
@@ -187,7 +188,7 @@ contract('SenderBlacklistValidator', function(accounts) {
         0x00,
         from,
         0x00,
-        0
+        0,
       );
       assert.isTrue(result, errMsg);
     });
@@ -204,7 +205,7 @@ contract('SenderBlacklistValidator', function(accounts) {
         0x00,
         from,
         investor1,
-        0
+        0,
       );
       assert.isTrue(result, errMsg);
     });

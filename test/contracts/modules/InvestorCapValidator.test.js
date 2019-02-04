@@ -1,16 +1,17 @@
 /* eslint max-len:0 */
-const {expectThrow} = require('../../utils');
+const { expectThrow } = require('../../utils');
+
 const InvestorCapValidatorAbstraction = artifacts.require('InvestorCapValidator');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('InvestorCapValidator', function(accounts) {
+contract('InvestorCapValidator', function (accounts) {
   const from = accounts[0];
   const investor1 = accounts[1];
   let instance;
   const investorCap = 100;
 
-  beforeEach( async () => {
-    instance = await InvestorCapValidatorAbstraction.new(investorCap, {from});
+  beforeEach(async () => {
+    instance = await InvestorCapValidatorAbstraction.new(investorCap, { from });
   });
 
   describe('is Ownable', () => {
@@ -34,7 +35,7 @@ contract('InvestorCapValidator', function(accounts) {
       const name = await instance.getName.call();
       assert.strictEqual(
         TRANSFER_VALIDATOR_NAME,
-        web3._extend.utils.toAscii(name).replace(/\0/g, '')
+        web3._extend.utils.toAscii(name).replace(/\0/g, ''),
       );
     });
   });
@@ -74,7 +75,7 @@ contract('InvestorCapValidator', function(accounts) {
 
     it('allows owner to change investorCount', async () => {
       const errMsg = 'InvestorCount not changed';
-      const receipt = await instance.overrideInvestorCount(from, newInvestorCount, {from});
+      const receipt = await instance.overrideInvestorCount(from, newInvestorCount, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogInvestorCountOverride');
@@ -88,7 +89,7 @@ contract('InvestorCapValidator', function(accounts) {
     it('allows owner to change investorCount to more than current investorCap', async () => {
       const errMsg = 'InvestorCount not changed';
       const overInvestorCap = investorCap + 1;
-      const receipt = await instance.overrideInvestorCount(from, overInvestorCap, {from});
+      const receipt = await instance.overrideInvestorCount(from, overInvestorCap, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogInvestorCountOverride');
@@ -102,18 +103,18 @@ contract('InvestorCapValidator', function(accounts) {
     it('does not allow non-owner to change investorCount', async () => {
       const errMsg = 'It should not allow a non-owner to change investorCount';
       await expectThrow(
-        instance.overrideInvestorCount(from, newInvestorCount, {from: investor1}),
-        errMsg
+        instance.overrideInvestorCount(from, newInvestorCount, { from: investor1 }),
+        errMsg,
       );
     });
     it('does not change InvestorCount when paused', async () => {
       const errMsg = 'It should not allow changing InvestorCount when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.overrideInvestorCount(from, newInvestorCount, {from}),
-        errMsg
+        instance.overrideInvestorCount(from, newInvestorCount, { from }),
+        errMsg,
       );
     });
   });
@@ -123,7 +124,7 @@ contract('InvestorCapValidator', function(accounts) {
 
     it('allows owner to change investorCap', async () => {
       const errMsg = 'InvestorCap not changed';
-      const receipt = await instance.setInvestorCap(newInvestorCap, {from});
+      const receipt = await instance.setInvestorCap(newInvestorCap, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogSetInvestorCap');
@@ -135,9 +136,9 @@ contract('InvestorCapValidator', function(accounts) {
 
     it('allows owner to change investorCap to less than current investors', async () => {
       const errMsg = 'InvestorCap not changed';
-      await instance.overrideInvestorCount(from, investorCap, {from});
+      await instance.overrideInvestorCount(from, investorCap, { from });
       const underInvestorCount = investorCap - 1;
-      const receipt = await instance.setInvestorCap(underInvestorCount, {from});
+      const receipt = await instance.setInvestorCap(underInvestorCount, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogSetInvestorCap');
@@ -150,27 +151,27 @@ contract('InvestorCapValidator', function(accounts) {
     it('does not allow non-owner to change investorCap', async () => {
       const errMsg = 'It should not allow a non-owner to change investorCap';
       await expectThrow(
-        instance.setInvestorCap(newInvestorCap, {from: investor1}),
-        errMsg
+        instance.setInvestorCap(newInvestorCap, { from: investor1 }),
+        errMsg,
       );
     });
 
     it('does not change InvestorCap when paused', async () => {
       const errMsg = 'It should not allow changing InvestorCap when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.setInvestorCap(newInvestorCap, {from}),
-        errMsg
+        instance.setInvestorCap(newInvestorCap, { from }),
+        errMsg,
       );
     });
   });
 
   describe('.canSend()', async () => {
-    beforeEach( async () => {
-      this.token = await SimpleToken.new({from});
-      await instance.overrideInvestorCount(from, 1, {from}); // to reflect that the from gets the initial Tokens
+    beforeEach(async () => {
+      this.token = await SimpleToken.new({ from });
+      await instance.overrideInvestorCount(from, 1, { from }); // to reflect that the from gets the initial Tokens
     });
 
     it('it increases InvestorCount and returns true when investor is new but count will be less or equal to cap', async () => {
@@ -187,7 +188,7 @@ contract('InvestorCapValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        amount
+        amount,
       );
       assert.isTrue(result, errMsg);
       // now actually run the validate to change state
@@ -196,7 +197,7 @@ contract('InvestorCapValidator', function(accounts) {
         from,
         investor1,
         amount,
-        {from}
+        { from },
       );
       const postCount = await instance.investorCount.call(from);
       assert.equal(postCount.toNumber(), preCount.toNumber() + 1);
@@ -204,23 +205,23 @@ contract('InvestorCapValidator', function(accounts) {
 
     it('it returns true when investor is not new and from will not have zero', async () => {
       const errMsg = 'It should report true when investor is not new and from will not have zero';
-      await this.token.transfer(investor1, 1, {from});
-      await instance.overrideInvestorCount(from, 2, {from}); // to reflect that the investor1 Token
+      await this.token.transfer(investor1, 1, { from });
+      await instance.overrideInvestorCount(from, 2, { from }); // to reflect that the investor1 Token
       const toBalance = await this.token.balanceOf(investor1);
       assert.equal(toBalance.toNumber(), 1);
       const result = await instance.canSend.call(
         this.token.address,
         from,
         investor1,
-        1
+        1,
       );
       assert.isTrue(result, errMsg);
     });
 
     it('it decreases InvestorCount and returns true when investor is not new and from will have zero', async () => {
       const errMsg = 'It should report true when investor is not new and from will not have zero';
-      await this.token.transfer(investor1, 1, {from});
-      await instance.overrideInvestorCount(from, 2, {from}); // to reflect that the investor1 Token
+      await this.token.transfer(investor1, 1, { from });
+      await instance.overrideInvestorCount(from, 2, { from }); // to reflect that the investor1 Token
 
       const preCount = await instance.investorCount.call(from);
       assert.equal(preCount.toNumber(), 2);
@@ -232,7 +233,7 @@ contract('InvestorCapValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        fromBalance.toNumber()
+        fromBalance.toNumber(),
       );
       assert.isTrue(result, errMsg);
       // now actually run the validate to change state
@@ -241,7 +242,7 @@ contract('InvestorCapValidator', function(accounts) {
         from,
         investor1,
         fromBalance.toNumber(),
-        {from},
+        { from },
       );
       const postCount = await instance.investorCount.call(from);
       assert.equal(postCount.toNumber(), preCount.toNumber() - 1);
@@ -250,7 +251,7 @@ contract('InvestorCapValidator', function(accounts) {
     it('it returns true when investor is new and cap is reached but from will have zero', async () => {
       const errMsg = 'It should report true when investor is new and cap is reached but from will have zero';
       const fromBalance = await this.token.balanceOf(from);
-      await instance.setInvestorCap(1, {from});
+      await instance.setInvestorCap(1, { from });
       const remainingInvestors = await instance.getRemainingInvestors.call(from);
       assert.equal(remainingInvestors.toNumber(), 0);
       const toBalance = await this.token.balanceOf(investor1);
@@ -259,7 +260,7 @@ contract('InvestorCapValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        fromBalance.toNumber()
+        fromBalance.toNumber(),
       );
       assert.isTrue(result, errMsg);
     });
@@ -268,19 +269,19 @@ contract('InvestorCapValidator', function(accounts) {
       const errMsg = 'It should report false for increase count and more than cap';
       const amount = 1;
       const preCount = await instance.investorCount.call(from);
-      await instance.setInvestorCap(preCount.toNumber(), {from});
+      await instance.setInvestorCap(preCount.toNumber(), { from });
 
       const remainingInvestors = await instance.getRemainingInvestors.call(from);
       assert.equal(remainingInvestors.toNumber(), 0);
 
       const toBalance = await this.token.balanceOf(investor1);
       assert.equal(toBalance.toNumber(), 0);
-      
+
       const result = await instance.canSend.call(
         this.token.address,
         from,
         investor1,
-        amount
+        amount,
       );
       assert.isFalse(result, errMsg);
       // now actually run the validate to test state changes
@@ -289,7 +290,7 @@ contract('InvestorCapValidator', function(accounts) {
         from,
         investor1,
         amount,
-        {from},
+        { from },
       );
       const postCount = await instance.investorCount.call(from);
       assert.equal(postCount.toNumber(), preCount.toNumber());
@@ -298,25 +299,25 @@ contract('InvestorCapValidator', function(accounts) {
     it('it cannot decrease InvestorCount below 0', async () => {
       const errMsg = 'It should prevent decreasing investorCount below 0';
       // Investor will not be a new Investor
-      await this.token.transfer(investor1, 1, {from});
-      
+      await this.token.transfer(investor1, 1, { from });
+
       // artificially set our investorCount to 0
-      await instance.overrideInvestorCount(from, 0, {from});
+      await instance.overrideInvestorCount(from, 0, { from });
       const preCount = await instance.investorCount.call(from);
       assert.equal(preCount.toNumber(), 0);
 
       const fromBalance = await this.token.balanceOf(from);
       const toBalance = await this.token.balanceOf(investor1);
       assert.equal(toBalance.toNumber(), 1);
-      
+
       await expectThrow(
         instance.canSend.call(
           this.token.address,
           from,
           investor1,
-          fromBalance.toNumber()
+          fromBalance.toNumber(),
         ),
-        errMsg
+        errMsg,
       );
     });
   });

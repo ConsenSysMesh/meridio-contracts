@@ -1,11 +1,11 @@
 /* eslint max-len:0 */
 const ExchangeAbstraction = artifacts.require('Exchange');
 
-contract('deploy_Exchange', function(accounts) {
+contract('deploy_Exchange', function (accounts) {
   const expectedContractArgs = {
   };
 
-  before( async () => {
+  before(async () => {
     this.deployed = await ExchangeAbstraction.deployed();
   });
 

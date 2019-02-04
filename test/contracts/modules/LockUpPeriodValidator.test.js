@@ -1,23 +1,24 @@
 /* eslint max-len:0 */
-const {expectThrow} = require('../../utils');
-const {advanceBlock} = require('openzeppelin-solidity/test/helpers/advanceToBlock');
-const {increaseTimeTo, duration} = require('openzeppelin-solidity/test/helpers/increaseTime');
-const {latestTime} = require('openzeppelin-solidity/test/helpers/latestTime');
+const { advanceBlock } = require('openzeppelin-solidity/test/helpers/advanceToBlock');
+const { increaseTimeTo, duration } = require('openzeppelin-solidity/test/helpers/increaseTime');
+const { latestTime } = require('openzeppelin-solidity/test/helpers/latestTime');
+const { expectThrow } = require('../../utils');
+
 const LockUpPeriodValidatorAbstraction = artifacts.require('LockUpPeriodValidator');
 
-contract('LockUpPeriodValidator', function(accounts) {
+contract('LockUpPeriodValidator', function (accounts) {
   const from = accounts[0];
   const investor1 = accounts[1];
   let instance;
 
-  before( async () => {
+  before(async () => {
     // Advance to the next block to correctly read time in the solidity "now" function interpreted by ganache
     await advanceBlock();
   });
 
-  beforeEach( async () => {
+  beforeEach(async () => {
     this.openingTime = (await latestTime()) + duration.weeks(1);
-    instance = await LockUpPeriodValidatorAbstraction.new(this.openingTime, {from});
+    instance = await LockUpPeriodValidatorAbstraction.new(this.openingTime, { from });
   });
 
   describe('constructor', () => {
@@ -25,8 +26,8 @@ contract('LockUpPeriodValidator', function(accounts) {
       const errMsg = 'Should throw error for less than now openingTime';
       const beforeNowTime = (await latestTime()) - duration.minutes(1);
       await expectThrow(
-        LockUpPeriodValidatorAbstraction.new(beforeNowTime, {from}),
-        errMsg
+        LockUpPeriodValidatorAbstraction.new(beforeNowTime, { from }),
+        errMsg,
       );
     });
   });
@@ -52,7 +53,7 @@ contract('LockUpPeriodValidator', function(accounts) {
       const name = await instance.getName.call();
       assert.strictEqual(
         TRANSFER_VALIDATOR_NAME,
-        web3._extend.utils.toAscii(name).replace(/\0/g, '')
+        web3._extend.utils.toAscii(name).replace(/\0/g, ''),
       );
     });
   });
@@ -74,13 +75,13 @@ contract('LockUpPeriodValidator', function(accounts) {
   });
 
   describe('.setOpeningTime()', async () => {
-    beforeEach( async () => {
+    beforeEach(async () => {
       this.newOpeningTime = (await latestTime()) + duration.weeks(1);
     });
 
     it('allows owner to change openingTime', async () => {
       const errMsg = 'OpeningTime not changed';
-      const receipt = await instance.setOpeningTime(this.newOpeningTime, {from});
+      const receipt = await instance.setOpeningTime(this.newOpeningTime, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogSetOpeningTime');
@@ -93,7 +94,7 @@ contract('LockUpPeriodValidator', function(accounts) {
     it('allows owner to change openingTime to equal to block.timestamp', async () => {
       const errMsg = 'OpeningTime not changed';
       const blockTimestamp = await latestTime();
-      const receipt = await instance.setOpeningTime(blockTimestamp, {from});
+      const receipt = await instance.setOpeningTime(blockTimestamp, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogSetOpeningTime');
@@ -106,19 +107,19 @@ contract('LockUpPeriodValidator', function(accounts) {
     it('does not allow non-owner to change openingTime', async () => {
       const errMsg = 'It should not allow a non-owner to change openingTime';
       await expectThrow(
-        instance.setOpeningTime(this.newOpeningTime, {from: investor1}),
-        errMsg
+        instance.setOpeningTime(this.newOpeningTime, { from: investor1 }),
+        errMsg,
       );
     });
 
     it('does not change OpeningTime when paused', async () => {
       const errMsg = 'It should not allow changing OpeningTime when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.setOpeningTime(this.newOpeningTime, {from}),
-        errMsg
+        instance.setOpeningTime(this.newOpeningTime, { from }),
+        errMsg,
       );
     });
 
@@ -126,8 +127,8 @@ contract('LockUpPeriodValidator', function(accounts) {
       const errMsg = 'Should throw error for less than now openingTime';
       const beforeNowTime = (await latestTime()) - duration.minutes(1);
       await expectThrow(
-        instance.setOpeningTime(beforeNowTime, {from}),
-        errMsg
+        instance.setOpeningTime(beforeNowTime, { from }),
+        errMsg,
       );
     });
   });

@@ -1,10 +1,11 @@
 const isEVMException = require('../../utils').isEVMException;
+
 const OupAbstraction = artifacts.require('OwnedUpgradeabilityProxy');
 let Oup;
 
-contract('OwnedUpgradeabilityProxy', function(accounts) {
+contract('OwnedUpgradeabilityProxy', (accounts) => {
   beforeEach(async () => {
-    Oup = await OupAbstraction.new({from: accounts[0]});
+    Oup = await OupAbstraction.new({ from: accounts[0] });
   });
 
   describe('proxyOwner', () => {
@@ -14,7 +15,7 @@ contract('OwnedUpgradeabilityProxy', function(accounts) {
     });
 
     it('transferProxyOwnership: should be able to change ownership if owner', async () => {
-      await Oup.transferProxyOwnership(accounts[1], {from: accounts[0]});
+      await Oup.transferProxyOwnership(accounts[1], { from: accounts[0] });
       const owner = await Oup.proxyOwner.call();
       assert.strictEqual(owner, accounts[1]);
     });
@@ -24,7 +25,7 @@ contract('OwnedUpgradeabilityProxy', function(accounts) {
       try {
         const owner = await Oup.proxyOwner.call();
         assert.strictEqual(owner, accounts[0]);
-        await Oup.transferProxyOwnership(accounts[1], {from: accounts[1]});
+        await Oup.transferProxyOwnership(accounts[1], { from: accounts[1] });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         const owner = await Oup.proxyOwner.call();

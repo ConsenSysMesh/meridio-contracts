@@ -2,10 +2,10 @@
 const TokenA = artifacts.require('./third-party/lib/helpers/TokenA');
 const TokenB = artifacts.require('./third-party/lib/helpers/TokenB');
 
-contract('deploy_mock_token_contracts', function(accounts) {
+contract('deploy_mock_token_contracts', function (accounts) {
   const expectedContractArgs = {};
 
-  before( async () => {
+  before(async () => {
     this.deployedA = await TokenA.deployed();
     this.deployedB = await TokenB.deployed();
   });

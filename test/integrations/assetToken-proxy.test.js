@@ -6,7 +6,7 @@ const OwnedUpgradeabilityProxyAbstraction = artifacts.require('OwnedUpgradeabili
 const AssetTokenAbstraction = artifacts.require('AssetToken');
 const VersionableAssetTokenMockAbstraction = artifacts.require('VersionableAssetTokenMock');
 
-contract('Proxied AssetToken', function(accounts) {
+contract('Proxied AssetToken', function (accounts) {
   const proxyOwner = accounts[0];
   const tokenOwner = accounts[1];
   const to = accounts[2];
@@ -22,22 +22,22 @@ contract('Proxied AssetToken', function(accounts) {
   const initializeDataV0 = encodeCall(
     'initialize',
     ['address', 'uint', 'string', 'uint8', 'string'],
-    [tokenOwner, initialSupply, tokenName, decimalUnits, tokenSymbol]
+    [tokenOwner, initialSupply, tokenName, decimalUnits, tokenSymbol],
   );
   const initializeDataV1 = encodeCall(
     'initialize',
     ['string'],
-    [newVersion]
+    [newVersion],
   );
 
-  beforeEach( async () => {
-    this.proxy = await OwnedUpgradeabilityProxyAbstraction.new({from: proxyOwner});
-    const assetToken = await AssetTokenAbstraction.new({from: proxyOwner});
+  beforeEach(async () => {
+    this.proxy = await OwnedUpgradeabilityProxyAbstraction.new({ from: proxyOwner });
+    const assetToken = await AssetTokenAbstraction.new({ from: proxyOwner });
 
     const recordedOwner = await this.proxy.proxyOwner.call();
     assert.equal(recordedOwner, proxyOwner, 'Proxy owner incorrect');
 
-    await this.proxy.upgradeToAndCall(assetToken.address, initializeDataV0, {from: proxyOwner});
+    await this.proxy.upgradeToAndCall(assetToken.address, initializeDataV0, { from: proxyOwner });
 
     const implAddress = await this.proxy.implementation.call();
     assert.equal(implAddress, assetToken.address, 'Impl address incorrect');
@@ -69,9 +69,9 @@ contract('Proxied AssetToken', function(accounts) {
             tokenName,
             decimalUnits,
             tokenSymbol,
-            {from: tokenOwner}
+            { from: tokenOwner },
           ),
-          errMsg
+          errMsg,
         );
       });
     });
@@ -80,20 +80,20 @@ contract('Proxied AssetToken', function(accounts) {
       it('it should allow the tokenOwner to change the name', async () => {
         const errMsg = 'it should change the name for the tokenOwner';
         const beforeName = await this.proxiedToken.name.call();
-        const afterName = beforeName + 'New';
+        const afterName = `${beforeName}New`;
 
-        await this.proxiedToken.changeName(afterName, {from: tokenOwner});
+        await this.proxiedToken.changeName(afterName, { from: tokenOwner });
         const setName = await this.proxiedToken.name.call();
         assert.equal(setName, afterName, errMsg);
       });
       it('it should not allow a proxyOwner to change the name', async () => {
         const errMsg = 'it should not change the name for a proxyOwner';
         const beforeName = await this.proxiedToken.name.call();
-        const afterName = beforeName + 'New';
+        const afterName = `${beforeName}New`;
 
         await expectThrow(
-          this.proxiedToken.changeName(afterName, {from: proxyOwner}),
-          errMsg
+          this.proxiedToken.changeName(afterName, { from: proxyOwner }),
+          errMsg,
         );
 
         const setName = await this.proxiedToken.name.call();
@@ -105,10 +105,10 @@ contract('Proxied AssetToken', function(accounts) {
         const symbol = await this.proxiedToken.symbol.call();
         assert.strictEqual(symbol, tokenSymbol, 'Token Symbol incorrect');
 
-        const newSymbol = tokenSymbol + 'new';
+        const newSymbol = `${tokenSymbol}new`;
         const errMsg = 'Symbol did not change';
 
-        await this.proxiedToken.changeSymbol(newSymbol, {from: tokenOwner});
+        await this.proxiedToken.changeSymbol(newSymbol, { from: tokenOwner });
         const afterSymbol = await this.proxiedToken.symbol.call();
         assert.equal(afterSymbol, newSymbol, errMsg);
       });
@@ -119,7 +119,7 @@ contract('Proxied AssetToken', function(accounts) {
         const balance = await this.proxiedToken.balanceOf.call(tokenOwner);
         assert.strictEqual(balance.toNumber(), initialSupply, 'Token Owner balance incorrect');
 
-        await this.proxiedToken.transfer(to, initialSupply, {from: tokenOwner});
+        await this.proxiedToken.transfer(to, initialSupply, { from: tokenOwner });
 
         const ownerBalanceAfter = await this.proxiedToken.balanceOf.call(tokenOwner);
         assert.strictEqual(ownerBalanceAfter.toNumber(), 0, 'After Token Owner balance incorrect');
@@ -128,7 +128,7 @@ contract('Proxied AssetToken', function(accounts) {
         assert.strictEqual(toBalanceAfter.toNumber(), initialSupply, 'After "to" balance incorrect');
       });
       it('emits a transfer event', async () => {
-        const {logs} = await this.proxiedToken.transfer(to, initialSupply, {from: tokenOwner});
+        const { logs } = await this.proxiedToken.transfer(to, initialSupply, { from: tokenOwner });
 
         assert.equal(logs.length, 1);
         assert.equal(logs[0].event, 'Transfer');
@@ -141,8 +141,8 @@ contract('Proxied AssetToken', function(accounts) {
         const balanceZeroBefore = await this.proxiedToken.balanceOf.call(this.proxiedToken.address);
         assert.strictEqual(balanceZeroBefore.toNumber(), 0);
         await expectThrow(
-          this.proxiedToken.transfer(this.proxiedToken.address, initialSupply, {from: tokenOwner}),
-          errMsg
+          this.proxiedToken.transfer(this.proxiedToken.address, initialSupply, { from: tokenOwner }),
+          errMsg,
         );
         const balanceAfter = await this.proxiedToken.balanceOf.call(tokenOwner);
         assert.strictEqual(balanceAfter.toNumber(), initialSupply);
@@ -155,7 +155,7 @@ contract('Proxied AssetToken', function(accounts) {
       it('it should allow approval', async () => {
         const errMsg = 'it should approve the spender';
         const amount = 100;
-        const {logs} = await this.proxiedToken.approve(spender, amount, {from: tokenOwner});
+        const { logs } = await this.proxiedToken.approve(spender, amount, { from: tokenOwner });
 
         assert.equal(logs.length, 1);
         assert.equal(logs[0].event, 'Approval');
@@ -171,12 +171,12 @@ contract('Proxied AssetToken', function(accounts) {
     describe('proxied.decreaseApproval()', () => {
       const amount = 100;
 
-      beforeEach( async () => {
-        await this.proxiedToken.approve(spender, amount, {from: tokenOwner});
+      beforeEach(async () => {
+        await this.proxiedToken.approve(spender, amount, { from: tokenOwner });
       });
 
       it('it should reduce spender\'s allowance', async () => {
-        const {logs} = await this.proxiedToken.decreaseApproval(spender, amount, {from: tokenOwner});
+        const { logs } = await this.proxiedToken.decreaseApproval(spender, amount, { from: tokenOwner });
 
         assert.equal(logs.length, 1);
         assert.equal(logs[0].event, 'Approval');
@@ -192,8 +192,8 @@ contract('Proxied AssetToken', function(accounts) {
     describe('proxied.transferFrom()', () => {
       const amount = 100;
 
-      beforeEach( async () => {
-        await this.proxiedToken.approve(spender, amount, {from: tokenOwner});
+      beforeEach(async () => {
+        await this.proxiedToken.approve(spender, amount, { from: tokenOwner });
       });
 
       it(`should transfer ${amount} to 'to' account on behalf of tokenOwner`, async () => {
@@ -202,7 +202,7 @@ contract('Proxied AssetToken', function(accounts) {
         const beforeTo = await this.proxiedToken.balanceOf.call(to);
         assert.strictEqual(beforeTo.toNumber(), 0, 'To does not have correct start balance');
 
-        const {logs} = await this.proxiedToken.transferFrom(tokenOwner, to, amount, {from: spender});
+        const { logs } = await this.proxiedToken.transferFrom(tokenOwner, to, amount, { from: spender });
         assert.equal(logs.length, 1);
         assert.equal(logs[0].event, 'Transfer');
         assert.equal(logs[0].args.from, tokenOwner);
@@ -217,8 +217,8 @@ contract('Proxied AssetToken', function(accounts) {
       it('should fail when trying to transfer to proxy contract address', async () => {
         const errMsg = 'should not transfer to proxy contract address';
         await expectThrow(
-          this.proxiedToken.transferFrom(tokenOwner, this.proxiedToken.address, amount, {from: spender}),
-          errMsg
+          this.proxiedToken.transferFrom(tokenOwner, this.proxiedToken.address, amount, { from: spender }),
+          errMsg,
         );
         const balanceAfter = await this.proxiedToken.balanceOf.call(tokenOwner);
         assert.strictEqual(balanceAfter.toNumber(), initialSupply);
@@ -232,17 +232,17 @@ contract('Proxied AssetToken', function(accounts) {
           0x00,
           0x00,
           0,
-          {from: tokenOwner}
+          { from: tokenOwner },
         );
         assert.isTrue(isValid, errMsg);
       });
     });
   });
   describe('second version AssetToken', () => {
-    beforeEach( async () => {
-      const verionedAssetToken = await VersionableAssetTokenMockAbstraction.new({from: proxyOwner});
+    beforeEach(async () => {
+      const verionedAssetToken = await VersionableAssetTokenMockAbstraction.new({ from: proxyOwner });
 
-      await this.proxy.upgradeToAndCall(verionedAssetToken.address, initializeDataV1, {from: proxyOwner});
+      await this.proxy.upgradeToAndCall(verionedAssetToken.address, initializeDataV1, { from: proxyOwner });
 
       const implAddress = await this.proxy.implementation.call();
       assert.equal(implAddress, verionedAssetToken.address, 'Impl address incorrect after upgrade');
@@ -276,7 +276,7 @@ contract('Proxied AssetToken', function(accounts) {
         const balance = await this.proxiedToken.balanceOf.call(tokenOwner);
         assert.strictEqual(balance.toNumber(), initialSupply, 'Token Owner balance incorrect');
 
-        await this.proxiedToken.transfer(to, initialSupply, {from: tokenOwner});
+        await this.proxiedToken.transfer(to, initialSupply, { from: tokenOwner });
 
         const ownerBalanceAfter = await this.proxiedToken.balanceOf.call(tokenOwner);
         assert.strictEqual(ownerBalanceAfter.toNumber(), 0, 'After Token Owner balance incorrect');
@@ -284,9 +284,9 @@ contract('Proxied AssetToken', function(accounts) {
         const toBalanceAfter = await this.proxiedToken.balanceOf.call(to);
         assert.strictEqual(toBalanceAfter.toNumber(), initialSupply, 'After "to" balance incorrect');
 
-        const verionedAssetToken = await VersionableAssetTokenMockAbstraction.new({from: proxyOwner});
+        const verionedAssetToken = await VersionableAssetTokenMockAbstraction.new({ from: proxyOwner });
 
-        await this.proxy.upgradeToAndCall(verionedAssetToken.address, initializeDataV1, {from: proxyOwner});
+        await this.proxy.upgradeToAndCall(verionedAssetToken.address, initializeDataV1, { from: proxyOwner });
 
         const implAddress = await this.proxy.implementation.call();
         assert.equal(implAddress, verionedAssetToken.address, 'Impl address incorrect after upgrade');
@@ -299,7 +299,7 @@ contract('Proxied AssetToken', function(accounts) {
         const afterUpgradeToBalanceAfter = await this.proxiedToken.balanceOf.call(to);
         assert.strictEqual(afterUpgradeToBalanceAfter.toNumber(), initialSupply, 'After upgrade "to" balance incorrect');
 
-        await this.proxiedToken.transfer(tokenOwner, initialSupply, {from: to});
+        await this.proxiedToken.transfer(tokenOwner, initialSupply, { from: to });
 
         const afterBackOwnerBalance = await upgradedToken.balanceOf.call(tokenOwner);
         assert.strictEqual(afterBackOwnerBalance.toNumber(), initialSupply, 'After transfer back Token Owner balance incorrect');

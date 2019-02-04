@@ -1,16 +1,17 @@
 /* eslint max-len:0 */
-const {expectThrow} = require('../../utils');
+const { expectThrow } = require('../../utils');
+
 const MaxAmountValidatorAbstraction = artifacts.require('MaxAmountValidator');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('MaxAmountValidator', function(accounts) {
+contract('MaxAmountValidator', function (accounts) {
   const from = accounts[0];
   const investor1 = accounts[1];
   let instance;
   const maxAmount = 100000000000000000;
 
-  beforeEach( async () => {
-    instance = await MaxAmountValidatorAbstraction.new(maxAmount, {from});
+  beforeEach(async () => {
+    instance = await MaxAmountValidatorAbstraction.new(maxAmount, { from });
   });
 
   describe('is Ownable', () => {
@@ -34,7 +35,7 @@ contract('MaxAmountValidator', function(accounts) {
       const name = await instance.getName.call();
       assert.strictEqual(
         TRANSFER_VALIDATOR_NAME,
-        web3._extend.utils.toAscii(name).replace(/\0/g, '')
+        web3._extend.utils.toAscii(name).replace(/\0/g, ''),
       );
     });
   });
@@ -60,7 +61,7 @@ contract('MaxAmountValidator', function(accounts) {
 
     it('allows owner to change maxAmount', async () => {
       const errMsg = 'MaxAmount not changes';
-      const receipt = await instance.setMaxAmount(newMaxAmount, {from});
+      const receipt = await instance.setMaxAmount(newMaxAmount, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogChangeMaxAmount');
@@ -72,25 +73,25 @@ contract('MaxAmountValidator', function(accounts) {
     it('does not allow non-owner to change maxAmount', async () => {
       const errMsg = 'It should not allow a non-owner to change maxAmount';
       await expectThrow(
-        instance.setMaxAmount(newMaxAmount, {from: investor1}),
-        errMsg
+        instance.setMaxAmount(newMaxAmount, { from: investor1 }),
+        errMsg,
       );
     });
     it('does not change MaxAmount when paused', async () => {
       const errMsg = 'It should not allow changing MaxAmount when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.setMaxAmount(newMaxAmount, {from: investor1}),
-        errMsg
+        instance.setMaxAmount(newMaxAmount, { from: investor1 }),
+        errMsg,
       );
     });
   });
 
   describe('.canSend()', async () => {
-    beforeEach( async () => {
-      this.token = await SimpleToken.new({from});
+    beforeEach(async () => {
+      this.token = await SimpleToken.new({ from });
     });
 
     it('it returns true when the _to balance + _amount LESS THAN maxAmount', async () => {
@@ -102,7 +103,7 @@ contract('MaxAmountValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        amount
+        amount,
       );
       assert.isTrue(result, errMsg);
     });
@@ -112,15 +113,15 @@ contract('MaxAmountValidator', function(accounts) {
       const amount = 1;
       const toBalance = await this.token.balanceOf(investor1);
 
-      await instance.setMaxAmount(toBalance.toNumber() + amount, {from});
+      await instance.setMaxAmount(toBalance.toNumber() + amount, { from });
       const nowMaxAmt = await instance.maxAmount.call();
       assert.equal(nowMaxAmt.toNumber(), toBalance.toNumber() + amount);
-      
+
       const result = await instance.canSend.call(
         this.token.address,
         from,
         investor1,
-        amount
+        amount,
       );
       assert.isTrue(result, errMsg);
     });
@@ -130,7 +131,7 @@ contract('MaxAmountValidator', function(accounts) {
       const amount = 1;
       const toBalance = await this.token.balanceOf(investor1);
 
-      await instance.setMaxAmount(amount, {from});
+      await instance.setMaxAmount(amount, { from });
       const nowMaxAmt = await instance.maxAmount.call();
       assert.isBelow(nowMaxAmt.toNumber(), toBalance.toNumber() + amount * 2);
 
@@ -138,7 +139,7 @@ contract('MaxAmountValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        amount * 2
+        amount * 2,
       );
       assert.isFalse(result, errMsg);
     });

@@ -1,13 +1,13 @@
 /* eslint max-len:0 */
 const ProxyTokenFactoryAbstraction = artifacts.require('ProxyTokenFactory');
 
-contract('deploy_ProxyTokenFactory', function(accounts) {
+contract('deploy_ProxyTokenFactory', function (accounts) {
   const expectedContractArgs = {
     owner: accounts[0],
     paused: false,
   };
 
-  before( async () => {
+  before(async () => {
     this.deployed = await ProxyTokenFactoryAbstraction.deployed();
   });
 

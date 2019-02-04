@@ -1,7 +1,8 @@
 const expectThrow = require('../utils.js').expectThrow;
+
 const SimpleLinkRegistry = artifacts.require('SimpleLinkRegistry');
 
-contract('SimpleLinkRegistry', function(accounts) {
+contract('SimpleLinkRegistry', (accounts) => {
   const owner = accounts[0];
   const otherOwner = accounts[1];
   const tempAddress = accounts[2];
@@ -9,34 +10,34 @@ contract('SimpleLinkRegistry', function(accounts) {
   const link1 = 'https://www.meridio.co/';
   let contract;
 
-  beforeEach( async () => {
-    contract = await SimpleLinkRegistry.new({from: owner});
+  beforeEach(async () => {
+    contract = await SimpleLinkRegistry.new({ from: owner });
   });
 
   it('should set a link and fire an event', async () => {
-    contract = await SimpleLinkRegistry.new({from: owner});
-    const {logs} = await contract.setLink(
+    contract = await SimpleLinkRegistry.new({ from: owner });
+    const { logs } = await contract.setLink(
       tempAddress,
       key1,
       link1,
-      {from: owner}
+      { from: owner },
     );
 
     assert.strictEqual(
       logs[0].event,
-      'LinkSet'
+      'LinkSet',
     );
     assert.strictEqual(
       tempAddress,
-      logs[0].args.subject
+      logs[0].args.subject,
     );
     assert.strictEqual(
       key1,
-      web3._extend.utils.toAscii(logs[0].args.key).replace(/\0/g, '')
+      web3._extend.utils.toAscii(logs[0].args.key).replace(/\0/g, ''),
     );
     assert.strictEqual(
       link1,
-      logs[0].args.value
+      logs[0].args.value,
     );
   });
 
@@ -47,55 +48,55 @@ contract('SimpleLinkRegistry', function(accounts) {
         tempAddress,
         key1,
         link1,
-        {from: otherOwner}
+        { from: otherOwner },
       ),
-      errMsg
+      errMsg,
     );
   });
 
   context('when a link as been set', async () => {
-    beforeEach( async () => {
+    beforeEach(async () => {
       await contract.setLink(
         tempAddress,
         key1,
         link1,
-        {from: owner}
+        { from: owner },
       );
     });
 
     it('should get an existing link correctly', async () => {
       const result = await contract.getLink(
         tempAddress,
-        key1
+        key1,
       );
 
       assert.strictEqual(
         link1,
-        result
+        result,
       );
     });
 
     it('should get an empty link correctly', async () => {
       const result = await contract.getLink(
         tempAddress,
-        'key2'
+        'key2',
       );
 
       assert.strictEqual(
         '',
-        result
+        result,
       );
     });
 
     it('should get an empty link correctly for wrong subject', async () => {
       const result = await contract.getLink(
         '0x0000000000000000000000000000000000000000',
-        key1
+        key1,
       );
 
       assert.strictEqual(
         '',
-        result
+        result,
       );
     });
   });

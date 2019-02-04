@@ -1,7 +1,7 @@
 /* eslint max-len:0 */
 const FakeDaiAbstraction = artifacts.require('./mocks/DSToken');
 
-contract('deploy_FakeDai', function(accounts) {
+contract('deploy_FakeDai', function (accounts) {
   const expectedContractArgs = {
     owner: accounts[0],
     initialMinting: 1000000000000000000000000000,
@@ -10,7 +10,7 @@ contract('deploy_FakeDai', function(accounts) {
     stopped: false,
   };
 
-  before( async () => {
+  before(async () => {
     this.deployed = await FakeDaiAbstraction.deployed();
   });
 
@@ -36,7 +36,7 @@ contract('deploy_FakeDai', function(accounts) {
       assert.equal(
         setName.substring(0, expectedContractArgs.name.length),
         expectedContractArgs.name,
-        'name not set correctly'
+        'name not set correctly',
       );
     });
 
@@ -45,7 +45,7 @@ contract('deploy_FakeDai', function(accounts) {
       assert.equal(
         setSymbol.substring(0, expectedContractArgs.symbol.length),
         expectedContractArgs.symbol,
-        'Symbol not set correctly'
+        'Symbol not set correctly',
       );
     });
 

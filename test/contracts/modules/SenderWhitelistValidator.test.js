@@ -1,15 +1,16 @@
 /* eslint max-len:0 */
 const isEVMException = require('../../utils').isEVMException;
 const expectThrow = require('../../utils').expectThrow;
+
 const SenderWhitelistValidatorAbstraction = artifacts.require('SenderWhitelistValidator');
 
-contract('SenderWhitelistValidator', function(accounts) {
+contract('SenderWhitelistValidator', (accounts) => {
   const from = accounts[0];
   const investor1 = accounts[1];
   let instance;
 
-  beforeEach( async () => {
-    instance = await SenderWhitelistValidatorAbstraction.new({from});
+  beforeEach(async () => {
+    instance = await SenderWhitelistValidatorAbstraction.new({ from });
   });
 
   describe('is Ownable', () => {
@@ -33,7 +34,7 @@ contract('SenderWhitelistValidator', function(accounts) {
       const name = await instance.getName.call();
       assert.strictEqual(
         TRANSFER_VALIDATOR_NAME,
-        web3._extend.utils.toAscii(name).replace(/\0/g, '')
+        web3._extend.utils.toAscii(name).replace(/\0/g, ''),
       );
     });
   });
@@ -50,7 +51,7 @@ contract('SenderWhitelistValidator', function(accounts) {
   describe('.addAddress()', async () => {
     it('allows owner to add new address to whitelist', async () => {
       const errMsg = 'Address not added';
-      const receipt = await instance.addAddress(investor1, {from});
+      const receipt = await instance.addAddress(investor1, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogAddAddress');
@@ -64,7 +65,7 @@ contract('SenderWhitelistValidator', function(accounts) {
       const isWhitelisted = await instance.isWhitelisted.call(investor1);
       assert.isFalse(isWhitelisted, 'Should not already be on the whitelist');
       try {
-        await instance.addAddress(investor1, {from: investor1});
+        await instance.addAddress(investor1, { from: investor1 });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -73,11 +74,11 @@ contract('SenderWhitelistValidator', function(accounts) {
     });
     it('does not add an address twice', async () => {
       const errMsg = 'It should not allow adding address twice';
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isWhitelisted = await instance.isWhitelisted.call(investor1);
       assert.isTrue(isWhitelisted, 'Should be on the whitelist');
       try {
-        await instance.addAddress(investor1, {from});
+        await instance.addAddress(investor1, { from });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -87,7 +88,7 @@ contract('SenderWhitelistValidator', function(accounts) {
     it('does not add a 0 address', async () => {
       const errMsg = 'It should not allow adding 0 address';
       try {
-        await instance.addAddress(0, {from});
+        await instance.addAddress(0, { from });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -96,12 +97,12 @@ contract('SenderWhitelistValidator', function(accounts) {
     });
     it('does not add address when paused', async () => {
       const errMsg = 'It should not allow adding address when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.addAddress(investor1, {from}),
-        errMsg
+        instance.addAddress(investor1, { from }),
+        errMsg,
       );
     });
   });
@@ -110,11 +111,11 @@ contract('SenderWhitelistValidator', function(accounts) {
     it('allows owner to remove an address from whitelist', async () => {
       const errMsg = 'Address not removed';
 
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isWhitelisted = await instance.isWhitelisted.call(investor1);
       assert.isTrue(isWhitelisted, 'Should be on the whitelist');
 
-      const receipt = await instance.removeAddress(investor1, {from});
+      const receipt = await instance.removeAddress(investor1, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogRemoveAddress');
@@ -126,12 +127,12 @@ contract('SenderWhitelistValidator', function(accounts) {
     it('does not allow non-owner to remove from whitelist', async () => {
       const errMsg = 'It should not allow a non-owner to add an address';
 
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isWhitelisted = await instance.isWhitelisted.call(investor1);
       assert.isTrue(isWhitelisted, 'Should be on the whitelist');
 
       try {
-        await instance.removeAddress(investor1, {from: investor1});
+        await instance.removeAddress(investor1, { from: investor1 });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -140,11 +141,11 @@ contract('SenderWhitelistValidator', function(accounts) {
     });
     it('it throws when trying to remove an address not on the list', async () => {
       const errMsg = 'It should when trying to remove address not listed';
-      
+
       const isWhitelisted = await instance.isWhitelisted.call(investor1);
       assert.isFalse(isWhitelisted, 'Should not be on the whitelist');
       try {
-        await instance.removeAddress(investor1, {from});
+        await instance.removeAddress(investor1, { from });
       } catch (e) {
         assert.isTrue(isEVMException(e), errMsg);
         return;
@@ -154,17 +155,17 @@ contract('SenderWhitelistValidator', function(accounts) {
     it('it does not remove address when paused', async () => {
       const errMsg = 'It should not allow removing address when paused';
 
-      await instance.addAddress(investor1, {from});
+      await instance.addAddress(investor1, { from });
       const isWhitelisted = await instance.isWhitelisted.call(investor1);
       assert.isTrue(isWhitelisted, 'Should be on the whitelist');
-      
-      await instance.pause({from});
+
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
-      
+
       await expectThrow(
-        instance.removeAddress(investor1, {from}),
-        errMsg
+        instance.removeAddress(investor1, { from }),
+        errMsg,
       );
     });
   });
@@ -177,7 +178,7 @@ contract('SenderWhitelistValidator', function(accounts) {
         0x00,
         from,
         0x00,
-        0
+        0,
       );
       assert.isTrue(result, errMsg);
     });
@@ -190,7 +191,7 @@ contract('SenderWhitelistValidator', function(accounts) {
         0x00,
         from,
         investor1,
-        0
+        0,
       );
       assert.isTrue(result, errMsg);
     });
@@ -203,7 +204,7 @@ contract('SenderWhitelistValidator', function(accounts) {
         0x00,
         from,
         0x00,
-        0
+        0,
       );
       assert.isFalse(result, errMsg);
     });

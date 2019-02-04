@@ -1,16 +1,17 @@
 /* eslint max-len:0 */
-const {expectThrow} = require('../../utils');
+const { expectThrow } = require('../../utils');
+
 const InvestorMinValidatorAbstraction = artifacts.require('InvestorMinValidator');
 const SimpleToken = artifacts.require('SimpleToken');
 
-contract('InvestorMinValidator', function(accounts) {
+contract('InvestorMinValidator', function (accounts) {
   const from = accounts[0];
   const investor1 = accounts[1];
   let instance;
   const investorMin = 2;
 
-  beforeEach( async () => {
-    instance = await InvestorMinValidatorAbstraction.new(investorMin, {from});
+  beforeEach(async () => {
+    instance = await InvestorMinValidatorAbstraction.new(investorMin, { from });
   });
 
   describe('is Ownable', () => {
@@ -34,7 +35,7 @@ contract('InvestorMinValidator', function(accounts) {
       const name = await instance.getName.call();
       assert.strictEqual(
         TRANSFER_VALIDATOR_NAME,
-        web3._extend.utils.toAscii(name).replace(/\0/g, '')
+        web3._extend.utils.toAscii(name).replace(/\0/g, ''),
       );
     });
   });
@@ -67,7 +68,7 @@ contract('InvestorMinValidator', function(accounts) {
 
     it('allows owner to change investorCount for an address', async () => {
       const errMsg = 'InvestorCount not changed';
-      const receipt = await instance.overrideInvestorCount(from, newInvestorCount, {from});
+      const receipt = await instance.overrideInvestorCount(from, newInvestorCount, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogInvestorCountOverride');
@@ -81,7 +82,7 @@ contract('InvestorMinValidator', function(accounts) {
     it('allows owner to change investorCount to less than current investorMin', async () => {
       const errMsg = 'InvestorCount not changed';
       const underInvestorMin = investorMin - 1;
-      const receipt = await instance.overrideInvestorCount(from, underInvestorMin, {from});
+      const receipt = await instance.overrideInvestorCount(from, underInvestorMin, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogInvestorCountOverride');
@@ -95,18 +96,18 @@ contract('InvestorMinValidator', function(accounts) {
     it('does not allow non-owner to change investorCount', async () => {
       const errMsg = 'It should not allow a non-owner to change investorCount';
       await expectThrow(
-        instance.overrideInvestorCount(from, newInvestorCount, {from: investor1}),
-        errMsg
+        instance.overrideInvestorCount(from, newInvestorCount, { from: investor1 }),
+        errMsg,
       );
     });
     it('does not change InvestorCount when paused', async () => {
       const errMsg = 'It should not allow changing InvestorCount when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.overrideInvestorCount(from, newInvestorCount, {from}),
-        errMsg
+        instance.overrideInvestorCount(from, newInvestorCount, { from }),
+        errMsg,
       );
     });
   });
@@ -116,7 +117,7 @@ contract('InvestorMinValidator', function(accounts) {
 
     it('allows owner to change investorMin for specified address', async () => {
       const errMsg = 'InvestorMin not changed';
-      const receipt = await instance.setInvestorMin(newInvestorMin, {from});
+      const receipt = await instance.setInvestorMin(newInvestorMin, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogSetInvestorMin');
@@ -128,9 +129,9 @@ contract('InvestorMinValidator', function(accounts) {
 
     it('allows owner to change investorMin to less than current investors', async () => {
       const errMsg = 'InvestorMin not changed';
-      await instance.overrideInvestorCount(from, investorMin, {from});
+      await instance.overrideInvestorCount(from, investorMin, { from });
       const underInvestorCount = investorMin - 1;
-      const receipt = await instance.setInvestorMin(underInvestorCount, {from});
+      const receipt = await instance.setInvestorMin(underInvestorCount, { from });
       const event = receipt.logs[0];
       const eventName = receipt.logs[0].event;
       assert.strictEqual(eventName, 'LogSetInvestorMin');
@@ -143,30 +144,30 @@ contract('InvestorMinValidator', function(accounts) {
     it('does not allow non-owner to change investorMin', async () => {
       const errMsg = 'It should not allow a non-owner to change investorMin';
       await expectThrow(
-        instance.setInvestorMin(newInvestorMin, {from: investor1}),
-        errMsg
+        instance.setInvestorMin(newInvestorMin, { from: investor1 }),
+        errMsg,
       );
     });
 
     it('does not change InvestorMin when paused', async () => {
       const errMsg = 'It should not allow changing InvestorMin when paused';
-      await instance.pause({from});
+      await instance.pause({ from });
       const paused = await instance.paused.call();
       assert.strictEqual(paused, true, 'should be paused');
       await expectThrow(
-        instance.setInvestorMin(newInvestorMin, {from}),
-        errMsg
+        instance.setInvestorMin(newInvestorMin, { from }),
+        errMsg,
       );
     });
   });
 
   describe('.canSend()', async () => {
     let tokenSupply;
-    beforeEach( async () => {
-      this.token = await SimpleToken.new({from});
+    beforeEach(async () => {
+      this.token = await SimpleToken.new({ from });
       tokenSupply = await this.token.totalSupply.call();
       tokenSupply = tokenSupply.toNumber();
-      await instance.overrideInvestorCount(from, 1, {from}); // to reflect that the from gets the initial Tokens
+      await instance.overrideInvestorCount(from, 1, { from }); // to reflect that the from gets the initial Tokens
     });
 
     it('it increases InvestorCount for calling address and returns true when investor is new and from has balance remaining', async () => {
@@ -184,7 +185,7 @@ contract('InvestorMinValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        amount
+        amount,
       );
       assert.isTrue(result, errMsg);
       // now actually run the validate to change state
@@ -193,7 +194,7 @@ contract('InvestorMinValidator', function(accounts) {
         from,
         investor1,
         amount,
-        {from}
+        { from },
       );
       const postCount = await instance.investorCount.call(from);
       assert.equal(postCount.toNumber(), preCount.toNumber() + 1);
@@ -201,24 +202,24 @@ contract('InvestorMinValidator', function(accounts) {
 
     it('it returns true when investor is not new and from will not have zero', async () => {
       const errMsg = 'It should report true when investor is not new and from will not have zero';
-      await this.token.transfer(investor1, 1, {from});
-      await instance.overrideInvestorCount(from, 2, {from}); // to reflect that the investor1 Token
+      await this.token.transfer(investor1, 1, { from });
+      await instance.overrideInvestorCount(from, 2, { from }); // to reflect that the investor1 Token
       const toBalance = await this.token.balanceOf(investor1);
       assert.equal(toBalance.toNumber(), 1);
       const result = await instance.canSend.call(
         this.token.address,
         from,
         investor1,
-        1
+        1,
       );
       assert.isTrue(result, errMsg);
     });
 
     it('it decreases InvestorCount and returns true when over min and investor is not new and from will have zero', async () => {
       const errMsg = 'It should report true when over min when investor is not new and from will not have zero';
-      await this.token.transfer(investor1, 1, {from});
-      await instance.overrideInvestorCount(from, 2, {from}); // to reflect that the investor1 Token
-      await instance.setInvestorMin(1, {from});
+      await this.token.transfer(investor1, 1, { from });
+      await instance.overrideInvestorCount(from, 2, { from }); // to reflect that the investor1 Token
+      await instance.setInvestorMin(1, { from });
 
       const preCount = await instance.investorCount.call(from);
       assert.equal(preCount.toNumber(), 2);
@@ -230,7 +231,7 @@ contract('InvestorMinValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        fromBalance.toNumber()
+        fromBalance.toNumber(),
       );
       assert.isTrue(result, errMsg);
       // now actually run the validate to change state
@@ -238,7 +239,7 @@ contract('InvestorMinValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        fromBalance.toNumber()
+        fromBalance.toNumber(),
       );
       const postCount = await instance.investorCount.call(from);
       assert.equal(postCount.toNumber(), preCount.toNumber() - 1);
@@ -246,22 +247,22 @@ contract('InvestorMinValidator', function(accounts) {
 
     it('it returns false when investor is not new but count will be less than min', async () => {
       const errMsg = 'It should report false for decrease count and less than min';
-      await this.token.transfer(investor1, 1, {from});
-      await instance.overrideInvestorCount(from, 2, {from}); // to reflect that the investor1 Token
+      await this.token.transfer(investor1, 1, { from });
+      await instance.overrideInvestorCount(from, 2, { from }); // to reflect that the investor1 Token
 
       const preCount = await instance.investorCount.call(from);
-      await instance.setInvestorMin(preCount.toNumber(), {from});
+      await instance.setInvestorMin(preCount.toNumber(), { from });
 
       const toBalance = await this.token.balanceOf(investor1);
       assert.equal(toBalance.toNumber(), 1);
 
       const fromBalance = await this.token.balanceOf(from);
-      
+
       const result = await instance.canSend.call(
         this.token.address,
         from,
         investor1,
-        fromBalance.toNumber()
+        fromBalance.toNumber(),
       );
       assert.isFalse(result, errMsg);
       // now actually run the validate to test state changes
@@ -269,7 +270,7 @@ contract('InvestorMinValidator', function(accounts) {
         this.token.address,
         from,
         investor1,
-        fromBalance.toNumber()
+        fromBalance.toNumber(),
       );
       const postCount = await instance.investorCount.call(from);
       assert.equal(postCount.toNumber(), preCount.toNumber());
@@ -277,26 +278,26 @@ contract('InvestorMinValidator', function(accounts) {
 
     it('it cannot decrease InvestorCount below 0', async () => {
       const errMsg = 'It should prevent decreasing investorCount below 0';
-      await this.token.transfer(investor1, 1, {from});
-      await instance.setInvestorMin(0, {from});
-      
+      await this.token.transfer(investor1, 1, { from });
+      await instance.setInvestorMin(0, { from });
+
       // artificially set our investorCount to 0
-      await instance.overrideInvestorCount(from, 0, {from});
+      await instance.overrideInvestorCount(from, 0, { from });
       const preCount = await instance.investorCount.call(from);
       assert.equal(preCount.toNumber(), 0);
 
       const fromBalance = await this.token.balanceOf(from);
       const toBalance = await this.token.balanceOf(investor1);
       assert.equal(toBalance.toNumber(), 1);
-      
+
       await expectThrow(
         instance.canSend.call(
           this.token.address,
           from,
           investor1,
-          fromBalance.toNumber()
+          fromBalance.toNumber(),
         ),
-        errMsg
+        errMsg,
       );
     });
   });

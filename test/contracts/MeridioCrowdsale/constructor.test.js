@@ -1,12 +1,12 @@
-const expectThrow = require('../../utils.js').expectThrow;
 const MeridioCrowdsaleAbstraction = artifacts.require('MeridioCrowdsale');
 const AssetTokenAbstraction = artifacts.require('AssetToken');
 
-const {latestTime} = require('openzeppelin-solidity/test/helpers/latestTime');
-const {advanceBlock} = require('openzeppelin-solidity/test/helpers/advanceToBlock');
-const {duration} = require('openzeppelin-solidity/test/helpers/increaseTime');
+const { latestTime } = require('openzeppelin-solidity/test/helpers/latestTime');
+const { advanceBlock } = require('openzeppelin-solidity/test/helpers/advanceToBlock');
+const { duration } = require('openzeppelin-solidity/test/helpers/increaseTime');
+const expectThrow = require('../../utils.js').expectThrow;
 
-contract('MeridioCrowdSale - constructor', function(accounts) {
+contract('MeridioCrowdSale - constructor', function (accounts) {
   const owner = accounts[0];
   const ZERO_ADDRESS = '0x0000000000000000000000000000000000000000';
 
@@ -19,16 +19,16 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
   const decimalUnits = 18;
   const tokenSymbol = 'ABC';
 
-  before( async () => {
+  before(async () => {
     await advanceBlock();
-    this.token = await AssetTokenAbstraction.new({from: owner});
+    this.token = await AssetTokenAbstraction.new({ from: owner });
     await this.token.initialize(
       owner,
       initialSupply,
       tokenName,
       decimalUnits,
       tokenSymbol,
-      {from: owner}
+      { from: owner },
     );
 
     this.openingTime = (await latestTime()) + duration.weeks(1);
@@ -39,7 +39,7 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
       this.closingTime,
       rate,
       this.token.address,
-      {from: owner}
+      { from: owner },
     );
   });
 
@@ -75,9 +75,9 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
           this.closingTime,
           rate,
           this.token.address, // token address
-          {from: owner}
+          { from: owner },
         ),
-        errMsg
+        errMsg,
       );
     });
 
@@ -89,9 +89,9 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
           0, // this.closingTime
           rate,
           this.token.address, // token address
-          {from: owner}
+          { from: owner },
         ),
-        errMsg
+        errMsg,
       );
     });
 
@@ -103,9 +103,9 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
           this.closingTime,
           0, // rate
           this.token.address,
-          {from: owner}
+          { from: owner },
         ),
-        errMsg
+        errMsg,
       );
     });
 
@@ -117,9 +117,9 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
           this.closingTime,
           rate,
           this.token.address,
-          {from: owner}
+          { from: owner },
         ),
-        errMsg
+        errMsg,
       );
     });
 
@@ -131,9 +131,9 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
           this.openingTime - duration.seconds(1),
           rate,
           this.token.address,
-          {from: owner}
+          { from: owner },
         ),
-        errMsg
+        errMsg,
       );
     });
 
@@ -145,9 +145,9 @@ contract('MeridioCrowdSale - constructor', function(accounts) {
           this.closingTime,
           rate,
           ZERO_ADDRESS, // token address
-          {from: owner}
+          { from: owner },
         ),
-        errMsg
+        errMsg,
       );
     });
   });

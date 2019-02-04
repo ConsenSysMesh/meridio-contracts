@@ -1,9 +1,10 @@
 /* eslint max-len:0 */
 const expectThrow = require('../utils.js').expectThrow;
+
 const InvestorMinValidatorAbstraction = artifacts.require('InvestorMinValidator');
 const AssetTokenAbstraction = artifacts.require('AssetToken');
 
-contract('AssetTokens - InvestorMinValidator', function(accounts) {
+contract('AssetTokens - InvestorMinValidator', (accounts) => {
   const from = accounts[0];
   const investor1 = accounts[1];
   const investorMin = 1;
@@ -17,36 +18,36 @@ contract('AssetTokens - InvestorMinValidator', function(accounts) {
   let token1;
   let token2;
 
-  beforeEach( async () => {
-    instance = await InvestorMinValidatorAbstraction.new(investorMin, {from});
-    token1 = await AssetTokenAbstraction.new({from});
+  beforeEach(async () => {
+    instance = await InvestorMinValidatorAbstraction.new(investorMin, { from });
+    token1 = await AssetTokenAbstraction.new({ from });
     await token1.initialize(
       from,
       initialSupply,
       tokenName,
       decimalUnits,
       tokenSymbol,
-      {from}
+      { from },
     );
     await token1.addModule(
       instance.address,
-      {from}
+      { from },
     );
-    await instance.overrideInvestorCount(token1.address, 1, {from}); // to reflect that the from gets the initial Tokens
-    token2 = await AssetTokenAbstraction.new({from});
+    await instance.overrideInvestorCount(token1.address, 1, { from }); // to reflect that the from gets the initial Tokens
+    token2 = await AssetTokenAbstraction.new({ from });
     await token2.initialize(
       from,
       initialSupply,
       tokenName,
       decimalUnits,
       tokenSymbol,
-      {from}
+      { from },
     );
     await token2.addModule(
       instance.address,
-      {from}
+      { from },
     );
-    await instance.overrideInvestorCount(token2.address, 1, {from}); // to reflect that the from gets the initial Tokens
+    await instance.overrideInvestorCount(token2.address, 1, { from }); // to reflect that the from gets the initial Tokens
   });
 
   describe('.canSend()', async () => {
@@ -64,7 +65,7 @@ contract('AssetTokens - InvestorMinValidator', function(accounts) {
       await token1.transfer(
         investor1,
         amount,
-        {from}
+        { from },
       );
       const token1PostCount = await instance.investorCount.call(token1.address);
       assert.equal(token1PostCount.toNumber(), token1PreCount.toNumber() + 1, errMsg1);
@@ -77,10 +78,10 @@ contract('AssetTokens - InvestorMinValidator', function(accounts) {
       const errMsg1 = 'It should throw for token1 transfer when at investorMin';
       const errMsg2 = 'It should allow transfer for token2';
       const amount = 1;
-      await token1.transfer(investor1, amount, {from}); // so investor1 does not count as new
-      await instance.overrideInvestorCount(token1.address, investorMin, {from});
+      await token1.transfer(investor1, amount, { from }); // so investor1 does not count as new
+      await instance.overrideInvestorCount(token1.address, investorMin, { from });
 
-      await token2.transfer(investor1, amount, {from}); // so investor1 does not count as new
+      await token2.transfer(investor1, amount, { from }); // so investor1 does not count as new
       const token2PreCount = await instance.investorCount.call(token2.address);
       assert.equal(token2PreCount.toNumber(), 2);
 
@@ -88,7 +89,7 @@ contract('AssetTokens - InvestorMinValidator', function(accounts) {
       assert.equal(toBalance.toNumber(), amount);
       const token1FromBalance = await token1.balanceOf.call(from);
       await expectThrow(
-        token1.transfer(investor1, token1FromBalance, {from}), // transfer entirity so would decrease count below min
+        token1.transfer(investor1, token1FromBalance, { from }), // transfer entirity so would decrease count below min
         errMsg1,
       );
 
@@ -96,7 +97,7 @@ contract('AssetTokens - InvestorMinValidator', function(accounts) {
       await token2.transfer(
         investor1,
         token2FromBalance,
-        {from}
+        { from },
       );
 
       const token2PostCount = await instance.investorCount.call(token2.address);
