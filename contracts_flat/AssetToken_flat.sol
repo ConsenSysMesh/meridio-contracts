@@ -480,7 +480,7 @@ contract Moduleable is Ownable {
             moduleType,
             moduleName,
             _moduleAddress,
-            block.timestamp // solhint-disable-line no-block-members
+            block.timestamp // solhint-disable-line not-rely-on-time
         );
 
         // Emit Index event
@@ -488,7 +488,7 @@ contract Moduleable is Ownable {
             modules[moduleType].length - 1,
             moduleType,
             _moduleAddress,
-            block.timestamp // solhint-disable-line no-block-members
+            block.timestamp // solhint-disable-line not-rely-on-time
         );
     }
 
@@ -514,7 +514,7 @@ contract Moduleable is Ownable {
         emit LogModuleRemoved(
             _moduleType,
             modules[_moduleType][_moduleIndex],
-            block.timestamp // solhint-disable-line no-block-members
+            block.timestamp // solhint-disable-line not-rely-on-time
         );
 
         uint lastIndex = modules[_moduleType].length - 1;
@@ -530,7 +530,7 @@ contract Moduleable is Ownable {
                     _moduleIndex,
                     _moduleType,
                     modules[_moduleType][_moduleIndex],
-                    block.timestamp // solhint-disable-line no-block-members
+                    block.timestamp // solhint-disable-line not-rely-on-time
                 );
             }
         }
