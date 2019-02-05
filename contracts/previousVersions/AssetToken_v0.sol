@@ -1,11 +1,11 @@
 pragma solidity 0.4.24;
 
-import "./Whitelist.sol";
+import {Whitelist_v0 as Whitelist} from "./Whitelist_v0.sol";
 import "openzeppelin-solidity/contracts/token/ERC20/StandardToken.sol";
 import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "openzeppelin-solidity/contracts/lifecycle/TokenDestructible.sol";
 
-contract AssetTokenv0_2 is StandardToken, Pausable, TokenDestructible {
+contract AssetTokenv0 is StandardToken, Pausable, TokenDestructible {
   /*----------- Globals -----------*/
 
     string public name;

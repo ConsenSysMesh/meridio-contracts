@@ -4,7 +4,7 @@ import "openzeppelin-solidity/contracts/lifecycle/Pausable.sol";
 import "openzeppelin-solidity/contracts/lifecycle/TokenDestructible.sol";
 
 
-contract Whitelist_v0_2 is Pausable, TokenDestructible {
+contract Whitelist_v0 is Pausable, TokenDestructible {
     /*----------- Globals -----------*/
 
     mapping(address => bool) public whitelist;
