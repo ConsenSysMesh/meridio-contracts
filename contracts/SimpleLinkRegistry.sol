@@ -41,7 +41,7 @@ contract SimpleLinkRegistry is Ownable {
             subject,
             key,
             value, 
-            block.timestamp // solhint-disable-line no-block-members
+            block.timestamp // solhint-disable-line not-rely-on-time
         );
     }
 

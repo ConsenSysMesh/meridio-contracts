@@ -47,7 +47,7 @@ contract Moduleable is Ownable {
         bytes32 moduleName = moduleContract.getName();
 
         // Resolves the case where modules were added, then all removed, and new modules added.
-        if(modules[moduleType].length == 1 && modules[moduleType][0] == address(0)) {
+        if (modules[moduleType].length == 1 && modules[moduleType][0] == address(0)) {
             modules[moduleType][0] = _moduleAddress;
         } else {
             modules[moduleType].push(_moduleAddress);        
@@ -58,7 +58,7 @@ contract Moduleable is Ownable {
             moduleType,
             moduleName,
             _moduleAddress,
-            block.timestamp // solhint-disable-line no-block-members
+            block.timestamp // solhint-disable-line not-rely-on-time
         );
 
         // Emit Index event
@@ -66,7 +66,7 @@ contract Moduleable is Ownable {
             modules[moduleType].length - 1,
             moduleType,
             _moduleAddress,
-            block.timestamp // solhint-disable-line no-block-members
+            block.timestamp // solhint-disable-line not-rely-on-time
         );
     }
 
@@ -92,23 +92,23 @@ contract Moduleable is Ownable {
         emit LogModuleRemoved(
             _moduleType,
             modules[_moduleType][_moduleIndex],
-            block.timestamp // solhint-disable-line no-block-members
+            block.timestamp // solhint-disable-line not-rely-on-time
         );
 
         uint lastIndex = modules[_moduleType].length - 1;
-        if(lastIndex == 0) {
+        if (lastIndex == 0) {
             modules[_moduleType][0] = address(0);
         } else {
             modules[_moduleType][_moduleIndex] = modules[_moduleType][lastIndex];
             delete modules[_moduleType][lastIndex];
             modules[_moduleType].length = lastIndex;
-            if (_moduleIndex != lastIndex){
+            if (_moduleIndex != lastIndex) {
                 // Emit an event describing the new index of the moved module
                 emit LogModuleIndexUpdate(
                     _moduleIndex,
                     _moduleType,
                     modules[_moduleType][_moduleIndex],
-                    block.timestamp // solhint-disable-line no-block-members
+                    block.timestamp // solhint-disable-line not-rely-on-time
                 );
             }
         }

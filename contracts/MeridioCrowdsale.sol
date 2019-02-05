@@ -26,8 +26,7 @@ contract MeridioCrowdsale is AllowanceCrowdsale, TimedCrowdsale, TokenDestructib
         public
         Crowdsale(_rate, msg.sender, _token)
         AllowanceCrowdsale(msg.sender)
-        TimedCrowdsale(_openingTime, _closingTime)
-    {
+        TimedCrowdsale(_openingTime, _closingTime) {
     }
 
     function updateRate(

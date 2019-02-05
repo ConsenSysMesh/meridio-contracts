@@ -45,7 +45,7 @@ contract OwnedUpgradeabilityProxy is UpgradeabilityProxy {
     function proxyOwner() public view returns (address owner) {
         bytes32 position = proxyOwnerPosition;
         assembly { // solhint-disable-line
-          owner := sload(position)
+            owner := sload(position)
         }
     }
 
@@ -55,7 +55,7 @@ contract OwnedUpgradeabilityProxy is UpgradeabilityProxy {
     function setUpgradeabilityOwner(address newProxyOwner) internal {
         bytes32 position = proxyOwnerPosition;
         assembly { // solhint-disable-line
-          sstore(position, newProxyOwner)
+            sstore(position, newProxyOwner)
         }
     }
 
@@ -87,8 +87,8 @@ contract OwnedUpgradeabilityProxy is UpgradeabilityProxy {
     * @param data represents the msg.data to bet sent in the low level call. This parameter may include the function
     * signature of the implementation to be called with the needed payload
     */
-    function upgradeToAndCall(address implementation, bytes data) payable public onlyProxyOwner {
+    function upgradeToAndCall(address implementation, bytes data) public payable onlyProxyOwner {
         upgradeTo(implementation);
-        require(address(this).call.value(msg.value)(data)); // solhint-disable-line no-call-value
+        require(address(this).call.value(msg.value)(data)); // solhint-disable-line avoid-call-value
     }
 }

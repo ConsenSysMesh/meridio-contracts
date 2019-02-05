@@ -165,7 +165,7 @@ contract AssetToken is MintableToken, BurnableToken, Moduleable {
         }
         bool isValid = true;
         for (uint8 i = 0; i < modules[TRANSFER_VALIDATOR_TYPE].length; i++) {
-            if(modules[TRANSFER_VALIDATOR_TYPE][i] != address(0)) {
+            if (modules[TRANSFER_VALIDATOR_TYPE][i] != address(0)) {
                 isValid = ITransferValidator(
                     modules[TRANSFER_VALIDATOR_TYPE][i]
                 ).canSend(this, _from, _to, _amount);                

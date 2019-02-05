@@ -28,8 +28,8 @@ contract UpgradeabilityProxy is Proxy {
     */
     function implementation() public view returns (address impl) {
         bytes32 position = implementationPosition;
-        assembly { // solhint-disable-line
-          impl := sload(position)
+        assembly { // solhint-disable-line no-inline-assembly
+            impl := sload(position)
         }
     }
 
@@ -40,7 +40,7 @@ contract UpgradeabilityProxy is Proxy {
     function setImplementation(address newImplementation) internal {
         bytes32 position = implementationPosition;
         assembly { // solhint-disable-line
-          sstore(position, newImplementation)
+            sstore(position, newImplementation)
         }
     }
 

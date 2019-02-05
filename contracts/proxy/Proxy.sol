@@ -39,7 +39,7 @@ contract Proxy is ERCProxy {
     * @dev Fallback function allowing to perform a delegatecall to the given implementation.
     * This function will return whatever the implementation call returns
     */
-    function () payable public {
+    function () public payable {
         address _impl = implementation();
         require(_impl != address(0));
 
