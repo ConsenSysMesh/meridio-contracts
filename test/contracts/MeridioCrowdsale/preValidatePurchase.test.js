@@ -7,7 +7,7 @@ const PausableValidator = artifacts.require('PausableValidator');
 const { latestTime } = require('openzeppelin-solidity/test/helpers/latestTime');
 const { advanceBlock } = require('openzeppelin-solidity/test/helpers/advanceToBlock');
 const { duration } = require('openzeppelin-solidity/test/helpers/increaseTime');
-const expectThrow = require('../../utils.js').expectThrow;
+const { expectThrow } = require('../../utils.js');
 
 contract('MeridioCrowdSale - preValidatePurchase', function (accounts) {
   const owner = accounts[0];
@@ -35,16 +35,20 @@ contract('MeridioCrowdSale - preValidatePurchase', function (accounts) {
       { from: owner },
     );
 
-    this.openingTime = (await latestTime());
+    this.openingTime = await latestTime();
     this.closingTime = this.openingTime + duration.weeks(1);
-
     this.crowdsale = await MeridioCrowdsaleAbstraction.new(
       this.openingTime,
       this.closingTime,
       rate,
       this.token.address,
       { from: owner },
-    );
+    ).catch(e => {
+      console.log('error launching crowdsale, most likely due to time control in testing');
+      console.log('opening time', this.openingTime);
+      console.log('closing time', this.closingTime);
+      throw e;
+    });
 
     await this.token.approve(this.crowdsale.address, initialSupply, { from: owner });
   });
