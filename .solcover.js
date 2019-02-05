@@ -3,6 +3,6 @@ module.exports = {
   copyPackages: ['eth-gas-reporter', 'zeppelin-solidity'],
   skipFiles: [
     'mocks/',
-    'third-party/lib/',
+    'third-party/',
   ]
 };
