@@ -1,7 +1,7 @@
 /* eslint max-len:0 */
 const util = require('ethereumjs-util');
 const ABI = require('ethereumjs-abi');
-const expectThrow = require('../utils.js').expectThrow;
+const { expectThrow } = require('../utils.js');
 const encodeCall = require('../helpers/encodeCall');
 
 const OwnedUpgradeabilityProxyAbstraction = artifacts.require('OwnedUpgradeabilityProxy');
