@@ -80,7 +80,7 @@ _Note: Imports `OwnedUpgradeabilityProxy.sol` as `ProxyToken`_
 
 ### Modules
 
-#### `modules/BlacklistValidator.sol`
+#### [`modules/BlacklistValidator.sol`](/contracts/modules/BlacklistValidator.sol)
 
 #### `modules/InvestorCapValidator.sol`
 
