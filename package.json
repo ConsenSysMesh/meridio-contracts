@@ -7,7 +7,7 @@
   },
   "scripts": {
     "coverage": "./node_modules/.bin/solidity-coverage",
-    "test": "NODE_ENV=test truffle test",
+    "test": "truffle test",
     "hint": "solhint 'contracts/**/*.sol'",
     "myth": "rm -rf ./build/contracts && truffle compile && myth --truffle"
   },
@@ -49,8 +49,8 @@
     }
   },
   "lint-staged": {
-    "*.js": [
-      "eslint --fix",
+    "*.sol": [
+      "solhint",
       "git add"
     ]
   }
