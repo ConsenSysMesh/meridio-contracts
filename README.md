@@ -92,9 +92,7 @@ _Note: Imports `OwnedUpgradeabilityProxy.sol` as `ProxyToken`_
 
 #### [`BlacklistValidator`](/contracts/modules/BlacklistValidator.sol)
 
-Type: TransferValidator
-
-Restricts reverts transfers if the `to` address is `true` in the blacklist mapping.
+Restricts TransferValidator reverts transfers if the `to` address is `true` in the blacklist mapping.
 
 **Permissions:**
 
@@ -108,9 +106,7 @@ The `owner` of the contract can add/remove addresses from the blacklist.
 
 #### [`InvestorCapValidator`](/contracts/modules/InvestorCapValidator.sol)
 
-Type: TransferValidator
-
-This contract reverts transfers if the transfer would cause there to be too many investors. `InvestorCount` and `InvestorCap`  are tracked as state on this contract. There is one `InvestorCount` per `msg.sender` that interacts with this contract and a single `InvestorCap`. (In the case of a token transfer `msg.sender` is the token contract.)
+This TransferValidator contract reverts transfers if the transfer would cause there to be too many investors. `InvestorCount` and `InvestorCap`  are tracked as state on this contract. There is one `InvestorCount` per `msg.sender` that interacts with this contract and a single `InvestorCap`. (In the case of a token transfer `msg.sender` is the token contract.)
 
 **Logic:**
 
@@ -131,9 +127,7 @@ The `owner` of the contract can manually update the `investorCount` for any addr
 
 #### [`InvestorMinValidator`](/contracts/modules/InvestorMinValidator.sol)
 
-Type: TransferValidator
-
-This contract reverts transfers if the transfer would cause there to be too few investors. `InvestorCount` and `InvestorMin`  are tracked as state on this contract. There is one `InvestorCount` per `msg.sender` that interacts with this contract and a single `InvestorMin`. (In the case of a token transfer `msg.sender` is the token contract.)
+This TransferValidator contract reverts transfers if the transfer would cause there to be too few investors. `InvestorCount` and `InvestorMin`  are tracked as state on this contract. There is one `InvestorCount` per `msg.sender` that interacts with this contract and a single `InvestorMin`. (In the case of a token transfer `msg.sender` is the token contract.)
 
 **Logic:**
 
@@ -153,9 +147,7 @@ The `owner` of the contract can manually update the `investorCount` for any addr
 
 #### [`LockUpPeriodValidator`](/contracts/modules/LockUpPeriodValidator.sol)
 
-Type: TransferValidator
-
-This contract that restricts transfers if the transfer would occur before the specified `openingTime` (compared against `block.timestamp`).
+This TransferValidator contract that restricts transfers if the transfer would occur before the specified `openingTime` (compared against `block.timestamp`).
 
 **Permissions:**
 
@@ -169,9 +161,7 @@ The `owner` of the contract can manually update the `openingTime`.
 
 #### [`MaxAmountValidator`](/contracts/modules/MaxAmountValidator.sol)
 
-Type: TransferValidator
-
-This contract that restricts transfers if the transfer would increase the `to` address's `balance` above a `maxAmount`.
+This TransferValidator contract that restricts transfers if the transfer would increase the `to` address's `balance` above a `maxAmount`.
 
 **Permissions:**
 
@@ -185,9 +175,7 @@ The `owner` of the contract can manually update the `maxAmount`.
 
 #### [`PausableValidator`](/contracts/modules/PausableValidator.sol)
 
-Type: TransferValidator
-
-This contract that restricts transfers if the validator is paused.
+This TransferValidator contract that restricts transfers if the validator is paused.
 
 **Permissions:**
 
@@ -201,9 +189,7 @@ The `owner` of the contract can pause/unpause the contract.
 
 #### [`SenderBlacklistValidator`](/contracts/modules/SenderBlacklistValidator.sol)
 
-Type: TransferValidator
-
-Restricts reverts transfers if the `from` address is `true` in the blacklist mapping.
+Restricts TransferValidator reverts transfers if the `from` address is `true` in the blacklist mapping.
 
 **Permissions:**
 
@@ -217,9 +203,7 @@ The `owner` of the contract can add/remove addresses from the blacklist.
 
 #### [`SenderWhitelistValidator`](/contracts/modules/SenderWhitelistValidator.sol)
 
-Type: TransferValidator
-
-Restricts reverts transfers if the `from` address is `false` in the whitelist mapping.
+Restricts TransferValidator reverts transfers if the `from` address is `false` in the whitelist mapping.
 
 **Permissions:**
 
@@ -233,9 +217,7 @@ The `owner` of the contract can add/remove addresses from the whitelist.
 
 #### [`WhitelistValidator`](/contracts/modules/WhitelistValidator.sol)
 
-Type: TransferValidator
-
-Restricts reverts transfers if the `to` address is `false` in the whitelist mapping.
+Restricts TransferValidator reverts transfers if the `to` address is `false` in the whitelist mapping.
 
 **Permissions:**
 
