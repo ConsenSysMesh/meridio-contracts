@@ -30,15 +30,18 @@ Environment Variables:
 
 ### Third Party contracts
 
-`mocks/FakeDai.sol`
+#### `mocks/FakeDai.sol`
+
 This is a copy of the Dai contract that Meridio uses in its test environments to mock interactions with Mainnet Dai.
 
-`third-party/Exchange.sol`
+#### `third-party/Exchange.sol`
+
 This is a copy of the Airswap Exchange contract that Meridio uses for P2P swaps between AssetTokens and Dai.
 
 ### Token
 
-`AssetToken.sol`
+#### `AssetToken.sol`
+
 This is a modified ERC20 that represents the core of the Meridio token ecosystem. It has modules on it to validate transfers and is used to track the tokens for each asset in the Meridio system. It will be launched as a Singleton and each Token in the system will be a proxy that references this implementation. When deploying the singleton, the deployer should ensure that the implementation gets initialized.  The ProxyTokenFactory is recommended for launching new individual tokens as that will initialize them in the initial transaction.
 Key Modifications to ERC20 standard:
 
@@ -51,7 +54,8 @@ Inheritance Chain: `openzeppelin/MintableToken`, `openzeppelin/BurnableToken`, `
 
 ### Proxy
 
-`proxy/OwnedUpgradeabilityProxy.sol`
+#### `proxy/OwnedUpgradeabilityProxy.sol`
+
 This contract combines an upgradeability proxy with basic authorization control functionalities
 Source https://github.com/zeppelinos/labs/blob/master/upgradeability_using_unstructured_storage/contracts/OwnedUpgradeabilityProxy.sol
 Interface Reference: https://github.com/ethereum/EIPs/blob/master/EIPS/eip-897.md
@@ -67,7 +71,8 @@ Inheritance Chain: `UpgradeabilityProxy`>`Proxy`>`ERCProxy`
 
 ### Factories
 
-`factories/ProxyTokenFactory.sol`
+#### `factories/ProxyTokenFactory.sol`
+
 This singleton launches a new proxy contract and points it to the implementation it is given. It then assigns ownership of the Token (impl) and the Proxy to the `msg.sender`
 
 Inheritance Chain: `openzeppelin/TokenDestructible`, `openzeppelin/Pausable`
@@ -75,27 +80,39 @@ _Note: Imports `OwnedUpgradeabilityProxy.sol` as `ProxyToken`_
 
 ### Modules
 
-`modules/BlacklistValidator.sol`
-`modules/InvestorCapValidator.sol`
-`modules/InvestorMinValidator.sol`
-`modules/LockUpPeriodValidator.sol`
-`modules/MaxAmountValidator.sol`
-`modules/PausableValidator.sol`
-`modules/SenderBlacklistValidator.sol`
-`modules/SenderWhitelistValidator.sol`
-`modules/WhitelistValidator.sol`
+#### `modules/BlacklistValidator.sol`
+
+#### `modules/InvestorCapValidator.sol`
+
+#### `modules/InvestorMinValidator.sol`
+
+#### `modules/LockUpPeriodValidator.sol`
+
+#### `modules/MaxAmountValidator.sol`
+
+#### `modules/PausableValidator.sol`
+
+#### `modules/SenderBlacklistValidator.sol`
+
+#### `modules/SenderWhitelistValidator.sol`
+
+#### `modules/WhitelistValidator.sol`
+
 
 ### Other
 
-`DistributionIssuer.sol`
+#### `DistributionIssuer.sol`
+
 This is a singleton contract that allows anyone to send many ERC20 compliant token transfers of various amounts to various payees. The sender must have approved the contract to `transferFrom` on its behalf beforehand.
 
-`MeridioCrowdsale.sol`
+#### `MeridioCrowdsale.sol`
+
 This is a crowdsale contract based on openzeppelin contracts. It allows for the purchasing of AssetTokens with ETH via `transferFrom` function. It has a conversion `rate` and `openingTime`/`closingTime`. The Owner can update the Rate as needed to adjust for price fluxuations in ETH.
 
 Inheritance Chain: `openzeppelin/AllowanceCrowdsale`, `openzeppelin/TimedCrowdsale`, `openzeppelin/TokenDestructible`, `openzeppelin/Pausable`
 
-`SimpleLinkRegistry.sol`
+#### `SimpleLinkRegistry.sol`
+
 This is a singleton contract that allows anyone to add key/value pairs to any “subject” smart contract address. The keys are meant to be simple identifiers, and the value is a string intended to be a link to HTTP or IPFS accessible data.
 
 Inheritance Chain: `openzeppelin/Ownable`
