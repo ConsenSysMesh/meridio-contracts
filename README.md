@@ -50,7 +50,7 @@ Key Modifications to ERC20 standard:
 - Allowing owner to `mint`/`burn` to/from any address
 - Allow owner to `addModule`/`removeModule` to control the parameters of `canSend`
 
-Inheritance Chain: `openzeppelin/MintableToken`, `openzeppelin/BurnableToken`, `Moduleable.sol`
+Inheritance Chain: [`openzeppelin/MintableToken`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/token/ERC20/MintableToken.sol), [`openzeppelin/BurnableToken`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/token/ERC20/BurnableToken.sol), `Moduleable.sol`
 
 ### Proxy
 
@@ -75,7 +75,7 @@ Inheritance Chain: `UpgradeabilityProxy`>`Proxy`>`ERCProxy`
 
 This singleton launches a new proxy contract and points it to the implementation it is given. It then assigns ownership of the Token (impl) and the Proxy to the `msg.sender`
 
-Inheritance Chain: `openzeppelin/TokenDestructible`, `openzeppelin/Pausable`
+Inheritance Chain: [`openzeppelin/TokenDestructible`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/lifecycle/TokenDestructible.sol), [`openzeppelin/Pausable`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/lifecycle/Pausable.sol)
 _Note: Imports `OwnedUpgradeabilityProxy.sol` as `ProxyToken`_
 
 ### Modules
@@ -109,13 +109,13 @@ This is a singleton contract that allows anyone to send many ERC20 compliant tok
 
 This is a crowdsale contract based on openzeppelin contracts. It allows for the purchasing of AssetTokens with ETH via `transferFrom` function. It has a conversion `rate` and `openingTime`/`closingTime`. The Owner can update the Rate as needed to adjust for price fluxuations in ETH.
 
-Inheritance Chain: `openzeppelin/AllowanceCrowdsale`, `openzeppelin/TimedCrowdsale`, `openzeppelin/TokenDestructible`, `openzeppelin/Pausable`
+Inheritance Chain: [`openzeppelin/AllowanceCrowdsale`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/crowdsale/emission/AllowanceCrowdsale.sol), [`openzeppelin/TimedCrowdsale`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/crowdsale/validation/TimedCrowdsale.sol), [`openzeppelin/TokenDestructible`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/lifecycle/TokenDestructible.sol), [`openzeppelin/Pausable`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/lifecycle/Pausable.sol)
 
 #### [`SimpleLinkRegistry.sol`](contracts/SimpleLinkRegistry.sol)
 
 This is a singleton contract that allows anyone to add key/value pairs to any “subject” smart contract address. The keys are meant to be simple identifiers, and the value is a string intended to be a link to HTTP or IPFS accessible data.
 
-Inheritance Chain: `openzeppelin/Ownable`
+Inheritance Chain: [`openzeppelin/Ownable`](https://github.com/OpenZeppelin/openzeppelin-solidity/blob/v1.12.0/contracts/ownership/Ownable.sol)
 
 ### System Diagrams
 
