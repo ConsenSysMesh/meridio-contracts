@@ -257,6 +257,9 @@ This is a singleton contract that allows anyone to add key/value pairs to any â€
 
 ### System Diagrams
 
-On-chain System Diagram
+#### On-chain System Diagram
 
-ProxyToken System Diagram
+[![](/_images/MER_Onchain_System_Diagram_small.png)](/_images/MER_Onchain_System_Diagram.png)
+
+#### ProxyToken System Diagram
+[![](/_images/MER_ProxiedToken_System_Diagram_small.png)](/_images/MER_ProxiedToken_System_Diagram.png)
