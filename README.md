@@ -92,7 +92,7 @@ _Note: Imports `OwnedUpgradeabilityProxy.sol` as `ProxyToken`_
 
 #### [`BlacklistValidator`](/contracts/modules/BlacklistValidator.sol)
 
-Restricts TransferValidator reverts transfers if the `to` address is `true` in the blacklist mapping.
+This TransferValidator contract reverts transfers if the `to` address is `true` in the blacklist mapping.
 
 **Permissions:**
 
@@ -147,7 +147,7 @@ The `owner` of the contract can manually update the `investorCount` for any addr
 
 #### [`LockUpPeriodValidator`](/contracts/modules/LockUpPeriodValidator.sol)
 
-This TransferValidator contract that restricts transfers if the transfer would occur before the specified `openingTime` (compared against `block.timestamp`).
+This TransferValidator contract reverts transfers if the transfer would occur before the specified `openingTime` (compared against `block.timestamp`).
 
 **Permissions:**
 
@@ -161,7 +161,7 @@ The `owner` of the contract can manually update the `openingTime`.
 
 #### [`MaxAmountValidator`](/contracts/modules/MaxAmountValidator.sol)
 
-This TransferValidator contract that restricts transfers if the transfer would increase the `to` address's `balance` above a `maxAmount`.
+This TransferValidator contract reverts transfers if the transfer would increase the `to` address's `balance` above a `maxAmount`.
 
 **Permissions:**
 
@@ -175,7 +175,7 @@ The `owner` of the contract can manually update the `maxAmount`.
 
 #### [`PausableValidator`](/contracts/modules/PausableValidator.sol)
 
-This TransferValidator contract that restricts transfers if the validator is paused.
+This TransferValidator contract reverts transfers if the validator is paused.
 
 **Permissions:**
 
@@ -189,7 +189,7 @@ The `owner` of the contract can pause/unpause the contract.
 
 #### [`SenderBlacklistValidator`](/contracts/modules/SenderBlacklistValidator.sol)
 
-Restricts TransferValidator reverts transfers if the `from` address is `true` in the blacklist mapping.
+This TransferValidator contract reverts transfers if the `from` address is `true` in the blacklist mapping.
 
 **Permissions:**
 
@@ -203,7 +203,7 @@ The `owner` of the contract can add/remove addresses from the blacklist.
 
 #### [`SenderWhitelistValidator`](/contracts/modules/SenderWhitelistValidator.sol)
 
-Restricts TransferValidator reverts transfers if the `from` address is `false` in the whitelist mapping.
+This TransferValidator contract reverts transfers if the `from` address is `false` in the whitelist mapping.
 
 **Permissions:**
 
@@ -217,7 +217,7 @@ The `owner` of the contract can add/remove addresses from the whitelist.
 
 #### [`WhitelistValidator`](/contracts/modules/WhitelistValidator.sol)
 
-Restricts TransferValidator reverts transfers if the `to` address is `false` in the whitelist mapping.
+This TransferValidator contract reverts transfers if the `to` address is `false` in the whitelist mapping.
 
 **Permissions:**
 
