@@ -5,7 +5,6 @@ import "openzeppelin-solidity/contracts/token/ERC20/BurnableToken.sol";
 import "./inheritables/Moduleable.sol";
 import "./interfaces/ITransferValidator.sol";
 
-
 contract AssetToken is MintableToken, BurnableToken, Moduleable {
     
     /*----------- Events -----------*/
