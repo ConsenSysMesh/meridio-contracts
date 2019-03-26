@@ -23,7 +23,7 @@ Other Commands that are available:
 
 Environment Variables:
 
-- `INFURA_KEY` - (Legacy) Infura ID for connecting to infura rinkeby node 
+- `INFURA_PROJECT_ID` - (Legacy) Infura ID for connecting to infura rinkeby node 
 - `MNEMONIC_PHRASE` - mnemonic phrase to give access to the wallet for launching on Rinkeby
 
 ## Contract Descriptions

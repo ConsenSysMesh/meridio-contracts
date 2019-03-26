@@ -1,6 +1,6 @@
 require('dotenv').config();
 const MNEMONIC = process.env.MNEMONIC_PHRASE;
-const INFURA_API_KEY = process.env.INFURA_KEY;
+const INFURA_PROJECT_ID = process.env.INFURA_PROJECT_ID;
 const HDWalletProvider = require('truffle-hdwallet-provider');
 
 module.exports = {
@@ -35,7 +35,7 @@ module.exports = {
       network_id: '*', // Match any network id
     },
     rinkeby: {
-      provider: () => new HDWalletProvider(MNEMONIC, `https://rinkeby.infura.io/${INFURA_API_KEY}`, 1),
+      provider: () => new HDWalletProvider(MNEMONIC, `https://rinkeby.infura.io/v3/${INFURA_PROJECT_ID}`, 1),
       network_id: 4,
       gas: 4700000,
     },
